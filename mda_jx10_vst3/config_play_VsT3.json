@@ -1,0 +1,36 @@
+{
+    "host_config" : {
+        "samplerate" : 48000
+    },
+    "tracks" : [
+        {
+            "name" : "main",
+            "mode" : "stereo",
+            "inputs" : [],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+                {
+                    "path" : "/home/ilias/workspaces/sushi_develop/build/debug/VST3/Debug/mda-vst3.vst3",
+                    "name" : "Synth",
+                    "type"   : "vst3x",
+                    "uid" : "mda JX10"
+                }
+            ]
+        }
+    ],
+    "midi" : {
+        "track_connections": [
+            {
+                "port": 0,
+                "channel": "all",
+                "track": "main",
+                "raw_midi": false
+            }
+        ]
+    }
+}
