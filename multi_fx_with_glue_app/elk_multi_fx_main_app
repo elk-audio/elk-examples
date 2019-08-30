@@ -257,5 +257,7 @@ if __name__ == '__main__':
     rack_bridge.start()
 
     while True:
+        # App is callback driven, so do nothing here, though this loop can be used to do periodic
+        # updates, flash leds, etc.
         time.sleep(0.1)
 
