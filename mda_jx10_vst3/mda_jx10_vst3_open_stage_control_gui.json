@@ -24,7 +24,7 @@
       "default": "",
       "value": "",
       "precision": 4,
-      "address": "Synth",
+      "address": "synth",
       "preArgs": "",
       "target": "",
       "bypass": false,
