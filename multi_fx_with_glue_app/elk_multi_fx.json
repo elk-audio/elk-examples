@@ -1,0 +1,51 @@
+{
+    "host_config" : {
+        "samplerate" : 48000
+    },
+    "tracks" : [
+        {
+            "name" : "main",
+            "mode" : "stereo",
+            "inputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+
+                {
+                    "path" : "/usr/lib/lxvst/mda-vst.linux/mdaOverdrive.so",
+                    "name" : "drive",
+                    "type"   : "vst2x"
+                },
+                {
+                    "path" : "/usr/lib/lxvst/mda-vst.linux/mdaThruZero.so",
+                    "name" : "flanger",
+                    "type"   : "vst2x"
+                },
+                {
+                    "path" : "/usr/lib/lxvst/mda-vst.linux/mdaRezFilter.so",
+                    "name" : "filter",
+                    "type"   : "vst2x"
+                },
+                {
+                    "path" : "/usr/lib/lxvst/mda-vst.linux/mdaDelay.so",
+                    "name" : "delay",
+                    "type"   : "vst2x"
+                }
+            ]
+        }
+    ],
+    "midi" : {
+        "track_connections": [],
+
+        "program_change_connections": []
+    }
+}

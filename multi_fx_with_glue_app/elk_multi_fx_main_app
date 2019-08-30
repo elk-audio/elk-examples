@@ -1,0 +1,261 @@
+#!/usr/bin/env python3.6
+'''elk-fx-main : glue app example for multi fx '''
+
+__copyright__   = 'Copyright (C) 2019 MIND Music Labs'
+
+import sys
+import time
+import queue
+import json
+
+import liblo
+
+import grpc
+import sushi_rpc_pb2
+import sushi_rpc_pb2_grpc
+
+###############
+#  Constants  #
+###############
+
+SUSHI_ADDRESS = ('localhost:51051')
+
+SENSEI_TO_BRIDGE_OSC_PORT = 23023
+BRIDGE_TO_SENSEI_PORT = 23024
+
+SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
+
+# Sensor input path : (tuple of (processor, parameter, (range_min, range_max), led ring id)
+SENSEI_ENCODER_MAP = {
+    '/sensors/analog/rotary_1' :   ( 'drive',   'Drive   ', (0.1, 1.0), 2 ),
+    '/sensors/analog/rotary_2' :   ( 'flanger', 'Rate', (0.0, 1.0), 3 ),
+    '/sensors/analog/rotary_3' :   ( 'filter',  'Freq', (0.0, 0.9), 4 ),
+    '/sensors/analog/rotary_4' :   ( 'delay',   'L Delay ', (0.1, 0.8), 5 )
+}
+
+SENSEI_BUTTON_MAP = {
+    '/sensors/digital/button_1' : 0,
+    '/sensors/digital/button_2' : 1,
+    '/sensors/digital/button_3' : 2,
+    '/sensors/digital/button_4' : 3
+}
+
+SENSEI_PROGRAM_SELECT = "/sensors/analog/program"
+
+SUSHI_PROCESSORS = ['drive', 'flanger', 'filter', 'delay']
+
+SUSHI_STARTUP_MESSAGES = [
+    ('main', 'gain', -10)
+]
+
+# A list of programs for each processor. Unfortunately mdaThruZero is the only
+# plugin that actually implements programs
+SUSHI_PROGRAMS = [
+    {'drive':0, 'flanger':0, 'filter':0, 'delay':0},
+    {'drive':1, 'flanger':1, 'filter':1, 'delay':1},
+    {'drive':2, 'flanger':2, 'filter':2, 'delay':2},
+    {'drive':3, 'flanger':3, 'filter':3, 'delay':3}
+]
+
+#########################
+#  Module functions
+#########################
+
+# When using hardware controllers and Sensei, these functions would call Sensei over OSC to set 
+# Leds, encoders, etc. 
+def set_led_output(led_id, value):
+    osc_msg = liblo.Message('/sensors/digital/led_' + str(led_id + 1))
+    osc_msg.add(('f', float(value)))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+
+def set_knob_output(path, value):
+    osc_msg = liblo.Message(path)
+    osc_msg.add(('f', float(value)))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+
+
+################
+#  Classes     #
+################
+
+# Simple mapper with internal cache to map between processor/parameter numerical ids and names
+# So that we can refer processors and parameters by names instead.
+class IdMapper(object):
+    def __init__(self, stub):
+        self._stub = stub;
+        self._plugins = {}
+
+    def id_from_plugin(self, plugin_name):
+        if plugin_name in self._plugins:
+            return self._plugins[plugin_name]['id']
+
+        try:
+            id = self._stub.GetProcessorId(sushi_rpc_pb2.GenericStringValue(value = plugin_name))
+            self._plugins[plugin_name] = {'id': id.id, 'params' : {}}
+            return id.id
+
+        except grpc.RpcError:
+            print('Plugin ' + plugin_name + ' not found')
+            return -1
+
+    def id_from_parameter(self, plugin_name, parameter_name):
+        if plugin_name in self._plugins:
+            if parameter_name in self._plugins[plugin_name]['params']:
+                return self._plugins[plugin_name]['params'][parameter_name]
+
+            try:
+                plugin_id = self.id_from_plugin(plugin_name)
+                param_id = self._stub.GetParameterId( 
+                    sushi_rpc_pb2.ParameterIdRequest(processor = sushi_rpc_pb2.ProcessorIdentifier(id = plugin_id),
+                    ParameterName = parameter_name))
+                self._plugins[plugin_name]['params'][parameter_name] = param_id.parameter_id
+                return param_id.parameter_id
+
+            except grpc.RpcError:
+                return -1
+
+        id = self.id_from_plugin(plugin_name)
+        if (id >= 0):
+            return self.id_from_parameter(plugin_name, parameter_name)
+
+        return -1
+
+def grpc_error_handling(e):
+    print('Grpc error: ' + str(e.code().name) + ', ' + e.details())
+
+
+# Convience wrapper over Sushi gRPC interface to provide a cleaner interface
+class SushiController(object):
+    def __init__(self, address):
+        channel  = grpc.insecure_channel(address)
+        self._stub = sushi_rpc_pb2_grpc.SushiControllerStub(channel)
+        self.mapper = IdMapper(self._stub)
+
+    def set_program(self, processor, program):
+        try:
+            self._stub.SetProcessorProgram(sushi_rpc_pb2.ProcessorProgramSetRequest(
+                processor = sushi_rpc_pb2.ProcessorIdentifier(id = 
+                    self.mapper.id_from_plugin(processor)),
+                program = sushi_rpc_pb2.ProgramIdentifier(program = program)))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
+    def set_parameter(self, processor, parameter, value):
+        try:
+            self._stub.SetParameterValue(sushi_rpc_pb2.ParameterSetRequest(
+                parameter = sushi_rpc_pb2.ParameterIdentifier(processor_id = 
+                self.mapper.id_from_plugin(processor),
+                parameter_id = self.mapper.id_from_parameter(processor, parameter)),
+                value = value))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
+    def get_parameter(self, processor, parameter):
+        try:
+            response = self._stub.GetParameterValue(sushi_rpc_pb2.ParameterIdentifier(
+                processor_id = self.mapper.id_from_plugin(processor), parameter_id =
+                self.mapper.id_from_parameter(processor, parameter)))
+            return response.value
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return 0
+
+    def set_bypass(self, processor, bypassed):
+        try:
+            self._stub.SetProcessorBypassState(sushi_rpc_pb2.ProcessorBypassStateSetRequest(
+                    processor = sushi_rpc_pb2.ProcessorIdentifier(id = self.mapper.id_from_plugin(
+                        processor)), value = bypassed))
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+
+    def get_bypass(self, processor):
+        try:
+            response = self._stub.GetProcessorBypassState(sushi_rpc_pb2.ProcessorIdentifier(
+                id = self.mapper.id_from_plugin(processor)))
+            return response.value
+
+        except grpc.RpcError as e:
+            grpc_error_handling(e)
+            return False
+
+
+# Bridge/Glue object that manages duplex communication between Sushi and the controlling interface (which
+# could be a hw controller, Open stage control, TouchOSC or similar) And encapsulates simple logic
+# around programs, state leds and similiar.
+class ElkBridge(object):
+    def __init__(self):
+        self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
+        self._sushi = SushiController(SUSHI_ADDRESS)
+        self.register_callbacks()
+        self._send_initial_sushi_configuration()
+
+    def register_callbacks(self):
+        for path, unused in SENSEI_ENCODER_MAP.items():
+            self._server.add_method(path, 'f', self._handle_knobs)
+
+        for path, unused in (SENSEI_BUTTON_MAP).items():
+            self._server.add_method(path, 'f', self._handle_buttons)
+
+        self._server.add_method(SENSEI_PROGRAM_SELECT, 'i', self._handle_programs)
+
+        self._server.add_method(None, None, self._unhandled_msg_callback)
+
+    def _unhandled_msg_callback(self, path, args, types, src):
+        print('Unknown message %s from %s' % (path, src.url))
+
+    def start(self):
+        self._server.start()
+
+    # Query Sushi for parameter values and update the knob positions accordingly
+    def _refresh_knobs(self):
+        for path, data in SENSEI_ENCODER_MAP.items():
+            processor = data[0]
+            parameter = data[1]    
+            value = self._sushi.get_parameter(processor, parameter)
+            range_min, range_max = data[2]
+            out_value = (value - range_min) / (range_max - range_min)
+            set_knob_output(path, out_value)
+
+    def _send_initial_sushi_configuration(self):
+        for data in SUSHI_STARTUP_MESSAGES:
+            self._sushi.set_parameter(data[0], data[1], data[2])
+
+    # Callback for parameter knobs
+    def _handle_knobs(self, path, args):
+        value = args[0]
+        data = SENSEI_ENCODER_MAP[path]
+        processor = data[0]
+        parameter = data[1]
+        range_min, range_max = data[2]
+        out_value = range_min + (range_max - range_min) * value
+        self._sushi.set_parameter(processor, parameter, out_value)
+
+    # Callback for enabled/disabled buttons
+    def _handle_buttons(self, path, args):
+        enabled_state = True if args[0] > 0.5 else False
+        button_id = int(path.split('/')[-1][-1]) - 1
+        processor = SUSHI_PROCESSORS[button_id]
+        self._sushi.set_bypass(processor, not enabled_state)
+        set_led_output(button_idx, enabled_state)
+
+    # Callback for program changes
+    def _handle_programs(self, path, args):
+        program = int(args[0])
+        multi_program = SUSHI_PROGRAMS[program]
+        for processor, program in multi_program.items():
+            self._sushi.set_program(processor, program)
+
+        self._refresh_knobs()
+
+
+if __name__ == '__main__':
+    rack_bridge = ElkBridge()
+    rack_bridge.start()
+
+    while True:
+        time.sleep(0.1)
+
