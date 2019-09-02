@@ -15,7 +15,7 @@
             ],
             "plugins" : [
                 {
-                    "path" : "/home/ilias/workspaces/sushi_develop/build/release/VST3/Release/mda-vst3.vst3",
+                    "path" : "/usr/lib/VST3/mda-vst3.vst3",
                     "name" : "synth",
                     "type"   : "vst3x",
                     "uid" : "mda JX10"

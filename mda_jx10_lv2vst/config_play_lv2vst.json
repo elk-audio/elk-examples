@@ -20,7 +20,7 @@
             ],
             "plugins" : [
                 {
-                    "path" : "/home/ilias/.vst/lv2vst/lv2vst.so",
+                    "path" : "/usr/lib/lv2vst/lv2vst.so",
                     "name" : "synth",
                     "type"   : "vst2x"
                 }
