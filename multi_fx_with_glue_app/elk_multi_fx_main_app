@@ -240,7 +240,7 @@ class ElkBridge(object):
         button_id = int(path.split('/')[-1][-1]) - 1
         processor = SUSHI_PROCESSORS[button_id]
         self._sushi.set_bypass(processor, not enabled_state)
-        set_led_output(button_idx, enabled_state)
+        set_led_output(button_id, enabled_state)
 
     # Callback for program changes
     def _handle_programs(self, path, args):
