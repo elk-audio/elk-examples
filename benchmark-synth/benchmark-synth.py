@@ -1,0 +1,107 @@
+import subprocess
+import re
+import time
+import argparse
+
+import alsaseq
+import grpc
+
+import sushi_rpc_pb2_grpc as sushi_grpc
+import sushi_rpc_pb2 as sushi_proto
+
+######################
+#  Module constants  #
+######################
+
+PROC_NAME = "benchmark-synth"
+
+DEFAULT_TARGET_ALSA_PORT = "Sushi"
+DEFAULT_MIDI_NOTES = [60]
+DEFAULT_NOTE_DURATION = 1.0
+INITIAL_MEASUREMENT_DELAY = 0.5
+
+DEFAULT_SUSHI_GRPC_PORT = 51051
+
+SND_SEQ_QUEUE_DIRECT = 253
+
+
+######################
+#  Helper functions  #
+######################
+
+def noteonevent(ch, key, vel):
+    'Returns an ALSA event tuple to be sent directly with alsaseq.output().'
+
+    return (alsaseq.SND_SEQ_EVENT_NOTEON, alsaseq.SND_SEQ_TIME_STAMP_REAL,
+            0, SND_SEQ_QUEUE_DIRECT, (0, 0),
+            (0, 0), (0, 0), (ch, key, vel, 0, 0))
+
+
+def noteoffevent(ch, key, vel):
+    'Returns an ALSA event tuple to be sent directly with alsaseq.output().'
+
+    return (alsaseq.SND_SEQ_EVENT_NOTEOFF, alsaseq.SND_SEQ_TIME_STAMP_REAL,
+            0, SND_SEQ_QUEUE_DIRECT, (0, 0),
+            (0, 0), (0, 0), (ch, key, vel, 0, 0))
+
+def get_alsa_port_by_name(port_name):
+    """Get ALSA port number querying aconnect."""
+    aconnect_proc = subprocess.Popen(['aconnect', '-l'], stdout=subprocess.PIPE)
+    out, dummy = aconnect_proc.communicate()
+
+    FIND_ALSA_PORT = re.compile(r"""client \s (\d+): \s \'%s\'""" % port_name, re.VERBOSE|re.DOTALL|re.MULTILINE)
+    alsa_port_match = FIND_ALSA_PORT.findall(str(out))
+    if not alsa_port_match:
+        raise ValueError("Couldn't find ALSA port %s" % port_name)
+
+    return int(alsa_port_match[0])
+
+class SushiRPChelper(object):
+    def __init__(self, sushi_proc_name, target_grpc_port=DEFAULT_SUSHI_GRPC_PORT):
+        self._channel = grpc.insecure_channel("localhost:%s" % target_grpc_port)
+        self._stub = sushi_grpc.SushiControllerStub(self._channel)
+        self._procid = self._stub.GetProcessorId(sushi_proto.GenericStringValue(value=sushi_proc_name))
+
+    def reset_timings(self):
+        self._stub.ResetProcessorTimings(self._procid)
+
+    def get_timings(self):
+        timings = self._stub.GetProcessorTimings(self._procid)
+        return timings
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(PROC_NAME)
+    parser.add_argument("-a", "--alsa-port", default=DEFAULT_TARGET_ALSA_PORT, type=str, help="Specify ALSA port to connect to, default: %s" % DEFAULT_TARGET_ALSA_PORT)
+    parser.add_argument("-p", "--processor", type=str, help="Specify Sushi's processor to benchmark")
+    parser.add_argument("-n", "--notes", type=int, nargs='+', default=[60], help="List of MIDI note numbers to send, default: %s" % DEFAULT_MIDI_NOTES)
+    parser.add_argument("-d", "--duration", default=DEFAULT_NOTE_DURATION, type=float, help="Note duration in seconds, default: %s" % DEFAULT_NOTE_DURATION)
+
+    args = parser.parse_args()
+
+    grpc_helper = SushiRPChelper(args.processor)
+
+    alsaseq.client(PROC_NAME, 0, 1, True)
+    alsaseq.connectto(0, get_alsa_port_by_name(args.alsa_port), 0)
+    alsaseq.start()
+
+    grpc_helper.reset_timings()
+    time.sleep(0.5)
+    timings_no_load = grpc_helper.get_timings()
+    print("Processor load without Note ONs:  %s avg, %s max" % (timings_no_load.average, timings_no_load.max))
+
+    while (True):
+        grpc_helper.reset_timings()
+        for note in args.notes:
+            alsaseq.output(noteonevent(0, note, 127))
+
+        time.sleep(args.duration)
+        timings_end = grpc_helper.get_timings()
+        for note in args.notes:
+            alsaseq.output(noteoffevent(0, note, 127))
+
+        print("Notes: %s, %s avg, %s max" % (args.notes,
+            timings_end.average, timings_end.max))
+        time.sleep(0.5 * args.duration)
+
