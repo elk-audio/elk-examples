@@ -23,7 +23,7 @@ public:
     bool moreThanOneInstanceAllowed() override       { return true; }
 
     //==============================================================================
-    void initialise(const String& commandLine) override
+    void initialise (const String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
 
@@ -45,7 +45,7 @@ public:
         quit();
     }
 
-    void anotherInstanceStarted(const String& commandLine) override
+    void anotherInstanceStarted (const String& commandLine) override
     {
         // When another instance of the app is launched while this one is running,
         // this method is invoked, and the commandLine parameter tells you what
@@ -60,19 +60,19 @@ public:
     class MainWindow : public DocumentWindow
     {
     public:
-        MainWindow(String name) : DocumentWindow(name,
+        MainWindow (String name) : DocumentWindow (name,
                 Desktop::getInstance().getDefaultLookAndFeel()
                 .findColour (ResizableWindow::backgroundColourId),
                 DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar(true);
-            setContentOwned(new MainComponent(), true);
+            setUsingNativeTitleBar (true);
+            setContentOwned (new MainComponent(), true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
            #else
-            setResizable(true, true);
-            centreWithSize(getWidth(), getHeight());
+            setResizable (true, true);
+            centreWithSize (getWidth(), getHeight());
            #endif
 
             setVisible(true);
@@ -103,4 +103,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION(Elk_Example_Synth_GUI_Application)
+START_JUCE_APPLICATION (Elk_Example_Synth_GUI_Application)

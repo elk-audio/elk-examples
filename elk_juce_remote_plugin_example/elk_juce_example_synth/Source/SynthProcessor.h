@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../elk_juce_example_common/DemoUtilities.h"
+//#include "../../elk_juce_example_common/DemoUtilities.h"
 #include "SynthOSCReceiver.h"
 #include "SynthEditor.h"
 #include "sample.h"
@@ -9,50 +9,54 @@ class SynthProcessor : public AudioProcessor
 {
 public:
     SynthProcessor()
-        : AudioProcessor(BusesProperties().withOutput ("Output", AudioChannelSet::stereo(), true)),
-          _currentProgram (0)
+        : AudioProcessor (BusesProperties().withOutput ("Output", AudioChannelSet::stereo(), true)),
+          currentProgram (0)
     {
         // initialize parameters:
-        addParameter(_roomSizeParam = new AudioParameterFloat ("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
-        addParameter(_dampingParam = new AudioParameterFloat ("damping", "Damping", 0.0f, 1.0f, 0.5f));
+        addParameter (roomSizeParam = new AudioParameterFloat ("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
+        addParameter (dampingParam = new AudioParameterFloat ("damping", "Damping", 0.0f, 1.0f, 0.5f));
 
-        _formatManager.registerBasicFormats();
+        formatManager.registerBasicFormats();
 
-        for (auto i = 0; i < _maxNumVoices; ++i)
-            _synth.addVoice (new SamplerVoice());
+        for (auto i = 0; i < maxNumVoices; ++i)
+            synth.addVoice (new SamplerVoice());
 
-        auto stream = new MemoryInputStream(sample::sample_ogg, sample::sample_oggSize, false);
+        auto stream = new MemoryInputStream (sample::sample_ogg, sample::sample_oggSize, false);
         loadNewSample (stream, "ogg");
     }
 
-    bool isBusesLayoutSupported(const BusesLayout& layouts) const override
+    bool isBusesLayoutSupported (const BusesLayout& layouts) const override
     {
         return (layouts.getMainOutputChannels() <= 2);
     }
 
-    void prepareToPlay(double sampleRate, int estimatedMaxSizeOfBuffer) override
+    void prepareToPlay (double sampleRate, int estimatedMaxSizeOfBuffer) override
     {
-        ignoreUnused(estimatedMaxSizeOfBuffer);
+        ignoreUnused (estimatedMaxSizeOfBuffer);
 
-        _lastSampleRate = sampleRate;
+        lastSampleRate = sampleRate;
 
-        _synth.setCurrentPlaybackSampleRate (_lastSampleRate);
-        _reverb.setSampleRate (_lastSampleRate);
+        synth.setCurrentPlaybackSampleRate (lastSampleRate);
+        reverb.setSampleRate (lastSampleRate);
     }
 
-    void processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
+    void processBlock (AudioBuffer <float>& buffer, MidiBuffer& midiMessages) override
     {
         Reverb::Parameters reverbParameters;
-        reverbParameters.roomSize = _roomSizeParam->get();
-        reverbParameters.damping = _dampingParam->get();
+        reverbParameters.roomSize = roomSizeParam->get();
+        reverbParameters.damping = dampingParam->get();
 
-        _reverb.setParameters(reverbParameters);
-        _synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+        reverb.setParameters (reverbParameters);
+        synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
         if (getMainBusNumOutputChannels() == 1)
-            _reverb.processMono(buffer.getWritePointer (0), buffer.getNumSamples());
+        {
+            reverb.processMono (buffer.getWritePointer(0), buffer.getNumSamples());
+        }
         else if (getMainBusNumOutputChannels() == 2)
-            _reverb.processStereo(buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
+        {
+            reverb.processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), buffer.getNumSamples());
+        }
     }
 
     void releaseResources() override { }
@@ -67,10 +71,10 @@ public:
 
     const String getName() const override { return "Elk Example JUCE Synth"; }
     int getNumPrograms() override { return 4; }
-    int getCurrentProgram() override { return _currentProgram; }
-    void setCurrentProgram (int index) override { _currentProgram = index; }
+    int getCurrentProgram() override { return currentProgram; }
+    void setCurrentProgram (int index) override { currentProgram = index; }
 
-    const String getProgramName(int index) override
+    const String getProgramName (int index) override
     {
         switch (index)
         {
@@ -83,51 +87,51 @@ public:
         return "<Unknown>";
     }
 
-    void changeProgramName(int /*index*/, const String& /*name*/) override {}
+    void changeProgramName (int /*index*/, const String& /*name*/) override {}
 
-    void getStateInformation(MemoryBlock& destData) override
+    void getStateInformation (MemoryBlock& destData) override
     {
-        MemoryOutputStream stream(destData, true);
+        MemoryOutputStream stream (destData, true);
 
-        stream.writeFloat(*_roomSizeParam);
-        stream.writeFloat(*_dampingParam);
+        stream.writeFloat (*roomSizeParam);
+        stream.writeFloat (*dampingParam);
     }
 
-    void setStateInformation(const void* data, int sizeInBytes) override
+    void setStateInformation (const void* data, int sizeInBytes) override
     {
-        MemoryInputStream stream(data, static_cast<size_t> (sizeInBytes), false);
+        MemoryInputStream stream (data, static_cast <size_t> (sizeInBytes), false);
 
-        _roomSizeParam->setValueNotifyingHost(stream.readFloat());
-        _dampingParam->setValueNotifyingHost(stream.readFloat());
+        roomSizeParam->setValueNotifyingHost (stream.readFloat());
+        dampingParam->setValueNotifyingHost (stream.readFloat());
     }
 
 private:
-    void loadNewSample(InputStream* soundBuffer, const char* format)
+    void loadNewSample (InputStream* soundBuffer, const char* format)
     {
-        std::unique_ptr<AudioFormatReader> formatReader(_formatManager.findFormatForFileExtension(format)->createReaderFor(soundBuffer, true));
+        std::unique_ptr <AudioFormatReader> formatReader (formatManager.findFormatForFileExtension (format)->createReaderFor (soundBuffer, true));
 
         BigInteger midiNotes;
-        midiNotes.setRange(0, 126, true);
-        SynthesiserSound::Ptr newSound = new SamplerSound("Voice", *formatReader, midiNotes, 0x40, 0.0, 0.0, 10.0);
-        _synth.removeSound(0);
-        _sound = newSound;
-        _synth.addSound(_sound);
+        midiNotes.setRange (0, 126, true);
+        SynthesiserSound::Ptr newSound = new SamplerSound ("Voice", *formatReader, midiNotes, 0x40, 0.0, 0.0, 10.0);
+        synth.removeSound (0);
+        sound = newSound;
+        synth.addSound (sound);
     }
 
-    static constexpr int _maxNumVoices = 5;
+    static constexpr int maxNumVoices = 5;
 
-    AudioFormatManager _formatManager;
+    AudioFormatManager formatManager;
 
-    double _lastSampleRate;
+    double lastSampleRate;
 
-    Reverb _reverb;
-    Synthesiser _synth;
-    SynthesiserSound::Ptr _sound;
+    Reverb reverb;
+    Synthesiser synth;
+    SynthesiserSound::Ptr sound;
 
-    AudioParameterFloat* _roomSizeParam;
-    AudioParameterFloat* _dampingParam;
+    AudioParameterFloat* roomSizeParam;
+    AudioParameterFloat* dampingParam;
 
-    int _currentProgram;
+    int currentProgram;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthProcessor)
 };

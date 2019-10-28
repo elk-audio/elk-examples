@@ -17,83 +17,93 @@ class SynthEditor : public AudioProcessorEditor,
         private Timer
 {
 public:
-    SynthEditor(AudioProcessor& processor)
-        : AudioProcessorEditor(processor),
-          _synthGUI(SynthGUI::FieldOptions::HideIPField)
+    SynthEditor (AudioProcessor& processor)
+        : AudioProcessorEditor (processor),
+          synthGUI (SynthGUI::FieldOptions::HideIPField)
     {
-        addAndMakeVisible(_synthGUI);
+        addAndMakeVisible (synthGUI);
 
-        auto roomSizeValue = getParameterValue("roomSize");
+        auto roomSizeValue = getParameterValue ("roomSize");
 
-        Slider& roomSizeSlider = _synthGUI.getRoomSizeSlider();
+        Slider& roomSizeSlider = synthGUI.getRoomSizeSlider();
 
-        roomSizeSlider.setValue(roomSizeValue, NotificationType::dontSendNotification);
+        roomSizeSlider.setValue (roomSizeValue, NotificationType::dontSendNotification);
+
         roomSizeSlider.onValueChange = [this]
         {
-            setParameterValue("roomSize", static_cast<float>(_synthGUI.getRoomSizeSlider().getValue()));
+            setParameterValue ("roomSize", static_cast <float> (synthGUI.getRoomSizeSlider().getValue()));
         };
-        roomSizeSlider.setRange(0.0, 1.0);
 
-        Slider& dampingSlider = _synthGUI.getDampingSlider();
+        roomSizeSlider.setRange (0.0, 1.0);
 
-        auto dampingValue = getParameterValue("damping");
-        dampingSlider.setValue(dampingValue, NotificationType::dontSendNotification);
+        Slider& dampingSlider = synthGUI.getDampingSlider();
+
+        auto dampingValue = getParameterValue ("damping");
+        dampingSlider.setValue (dampingValue, NotificationType::dontSendNotification);
+
         dampingSlider.onValueChange = [this]
         {
-            setParameterValue("damping", (float) _synthGUI.getDampingSlider().getValue());
+            setParameterValue ("damping", (float) synthGUI.getDampingSlider().getValue());
         };
-        dampingSlider.setRange(0.0, 1.0);
 
-        _synthGUI.getPortNumberField().addListener(this);
+        dampingSlider.setRange (0.0, 1.0);
 
-        _synthGUI.getSynthNameField().addListener(this);
+        synthGUI.getPortNumberField().addListener (this);
 
-        _OSC_receiver.getRoomSizeValue().addListener(this);
-        _OSC_receiver.getDampingValue().addListener(this);
+        synthGUI.getSynthNameField().addListener (this);
 
-        setSize(700, 400);
-        startTimer(100);
+        oscRreceiver.getRoomSizeValue().addListener (this);
+        oscRreceiver.getDampingValue().addListener (this);
+
+        setSize (700, 400);
+        startTimer (100);
     }
 
-    void paint(Graphics& g) override
+    void paint (Graphics& g) override
     {
-        g.fillAll(findColour(ResizableWindow::backgroundColourId));
+        g.fillAll (findColour (ResizableWindow::backgroundColourId));
     }
 
     void resized() override
     {
-        _synthGUI.setBounds(getLocalBounds());
+        synthGUI.setBounds (getLocalBounds());
     }
 
 private:
-    void labelTextChanged(Label* labelThatHasChanged) override
+    void labelTextChanged (Label* labelThatHasChanged) override
     {
-        if(labelThatHasChanged == &_synthGUI.getPortNumberField())
+        if (labelThatHasChanged == &synthGUI.getPortNumberField())
         {
-            auto newPort = _synthGUI.getPortNumberField().getTextValue().toString().getIntValue();
-            _OSC_receiver.changePort(newPort);
+            auto newPort = synthGUI.getPortNumberField().getTextValue().toString().getIntValue();
+            oscRreceiver.changePort (newPort);
         }
-        else if(labelThatHasChanged == &_synthGUI.getSynthNameField())
+        else if (labelThatHasChanged == &synthGUI.getSynthNameField())
         {
-            _OSC_receiver.updateSynthName(_synthGUI.getSynthNameField().getTextValue().toString());
+            oscRreceiver.updateSynthName (synthGUI.getSynthNameField().getTextValue().toString());
         }
     }
 
-    void valueChanged(Value& value) override
+    void valueChanged (Value& value) override
     {
-        if(value.refersToSameSourceAs(_OSC_receiver.getRoomSizeValue()))
-            _synthGUI.getRoomSizeSlider().setValue(static_cast<double>(value.getValue()), NotificationType::sendNotification);
-        else if(value.refersToSameSourceAs(_OSC_receiver.getDampingValue()))
-            _synthGUI.getDampingSlider().setValue(static_cast<double>(value.getValue()), NotificationType::sendNotification);
+        if (value.refersToSameSourceAs (oscRreceiver.getRoomSizeValue()))
+        {
+            synthGUI.getRoomSizeSlider().setValue (static_cast <double> (value.getValue()),
+                                                   NotificationType::sendNotification);
+        }
+        else if (value.refersToSameSourceAs (oscRreceiver.getDampingValue()))
+        {
+            synthGUI.getDampingSlider().setValue (static_cast <double> (value.getValue()),
+                                                  NotificationType::sendNotification);
+        }
     }
 
     void timerCallback() override
     {
-        _synthGUI.getRoomSizeSlider().setValue(getParameterValue ("roomSize"), NotificationType::dontSendNotification);
-        _synthGUI.getDampingSlider().setValue(getParameterValue ("damping"), NotificationType::dontSendNotification);
+        synthGUI.getRoomSizeSlider().setValue (getParameterValue ("roomSize"), NotificationType::dontSendNotification);
+        synthGUI.getDampingSlider().setValue (getParameterValue ("damping"), NotificationType::dontSendNotification);
     }
 
-    AudioProcessorParameter* getParameter(const String& paramId)
+    AudioProcessorParameter* getParameter (const String& paramId)
     {
         if (auto* processor = getAudioProcessor())
         {
@@ -101,7 +111,7 @@ private:
 
             for (auto p : params)
             {
-                if (auto* param = dynamic_cast<AudioProcessorParameterWithID*> (p))
+                if (auto* param = dynamic_cast <AudioProcessorParameterWithID*> (p))
                 {
                     if (param->paramID == paramId)
                         return param;
@@ -112,7 +122,7 @@ private:
         return nullptr;
     }
 
-    float getParameterValue(const String& paramId)
+    float getParameterValue (const String& paramId)
     {
         if (auto* param = getParameter (paramId))
             return param->getValue();
@@ -120,14 +130,14 @@ private:
         return 0.0f;
     }
 
-    void setParameterValue(const String& paramId, float value)
+    void setParameterValue (const String& paramId, float value)
     {
         if (auto* param = getParameter (paramId))
             param->setValueNotifyingHost (value);
     }
 
-    SynthGUI _synthGUI;
-    SynthOSCReceiver _OSC_receiver;
+    SynthGUI synthGUI;
+    SynthOSCReceiver oscRreceiver;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthEditor)

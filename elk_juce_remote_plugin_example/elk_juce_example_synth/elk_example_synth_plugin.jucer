@@ -18,7 +18,6 @@
             file="Source/SynthProcessor.h"/>
     </GROUP>
     <GROUP id="V3VegV" name="Assets">
-      <FILE id="P2BNo2" name="DemoUtilities.h" compile="0" resource="0" file="../elk_juce_example_common/DemoUtilities.h"/>
       <FILE id="r0GGYi" name="ElkLogo.cpp" compile="1" resource="0" file="../elk_juce_example_common/ElkLogo.cpp"/>
       <FILE id="BN9pL5" name="ElkLogo.h" compile="0" resource="0" file="../elk_juce_example_common/ElkLogo.h"/>
       <FILE id="HeXZ1Z" name="MaterialLookAndFeel.h" compile="0" resource="0"

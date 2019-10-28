@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DemoUtilities.h"
+#include "../JuceLibraryCode/JuceHeader.h"
 
 //==============================================================================
 class MaterialLookAndFeel : public LookAndFeel_V4

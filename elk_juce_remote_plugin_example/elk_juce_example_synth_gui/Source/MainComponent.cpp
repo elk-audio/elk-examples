@@ -1,53 +1,57 @@
 #include "MainComponent.h"
 
 MainComponent::MainComponent():
-        _synthGUI(SynthGUI::FieldOptions::ShowIPField)
+        synthGUI (SynthGUI::FieldOptions::ShowIPField)
 {
-    addAndMakeVisible(_synthGUI);
+    addAndMakeVisible (synthGUI);
 
-    Slider& roomSizeSlider = _synthGUI.getRoomSizeSlider();
+    Slider& roomSizeSlider = synthGUI.getRoomSizeSlider();
 
-    roomSizeSlider.setRange(0.0, 1.0);
-    roomSizeSlider.setValue(0.5f);
+    roomSizeSlider.setRange (0.0, 1.0);
+    roomSizeSlider.setValue (0.5f);
+
     roomSizeSlider.onValueChange = [this]
     {
         // create and send an OSC message with an address and a float value:
-        float value = static_cast<float>(_synthGUI.getRoomSizeSlider().getValue());
-        if (! _OSC_sender.send(_roomSizeAddressPattern, value))
+        float value = static_cast <float> (synthGUI.getRoomSizeSlider().getValue());
+
+        if (! oscSender.send (roomSizeAddressPattern, value))
         {
-            showConnectionErrorMessage("Error: could not send OSC message.");
+            showConnectionErrorMessage ("Error: could not send OSC message.");
         }
         else
         {
-            DBG("Sent value " + String(value) + " to AP " + _roomSizeAddressPattern);
+            DBG ("Sent value " + String (value) + " to AP " + roomSizeAddressPattern);
         }
     };
 
-    Slider& dampingSlider = _synthGUI.getDampingSlider();
+    Slider& dampingSlider = synthGUI.getDampingSlider();
 
-    dampingSlider.setRange(0.0, 1.0);
-    dampingSlider.setValue(0.5f);
+    dampingSlider.setRange (0.0, 1.0);
+    dampingSlider.setValue (0.5f);
+
     dampingSlider.onValueChange = [this]
     {
         // create and send an OSC message with an address and a float value:
-        float value = static_cast<float>(_synthGUI.getDampingSlider().getValue());
-        if (! _OSC_sender.send(_dampingAddressPattern, value))
+        float value = static_cast <float> (synthGUI.getDampingSlider().getValue());
+
+        if (! oscSender.send (dampingAddressPattern, value))
         {
-            showConnectionErrorMessage("Error: could not send OSC message.");
+            showConnectionErrorMessage ("Error: could not send OSC message.");
         }
         else
         {
-            DBG("Sent value " + String(value) + " to AP " + _dampingAddressPattern);
+            DBG ("Sent value " + String (value) + " to AP " + dampingAddressPattern);
         }
     };
 
-    _synthGUI.getPortNumberField().addListener(this);
-    _synthGUI.getIPField().addListener(this);
-    _synthGUI.getSynthNameField().addListener(this);
+    synthGUI.getPortNumberField().addListener (this);
+    synthGUI.getIPField().addListener (this);
+    synthGUI.getSynthNameField().addListener (this);
 
     connect();
 
-    setSize(700, 400);
+    setSize (700, 400);
 }
 
 MainComponent::~MainComponent() {}
@@ -55,64 +59,64 @@ MainComponent::~MainComponent() {}
 void MainComponent::connect()
 {
     // specify here where to send OSC messages to: host URL and UDP port number
-    if (! _OSC_sender.connect(_ip, _port))
+    if (! oscSender.connect (targetIP, targetPort))
     {
-        showConnectionErrorMessage("Error: could not connect to UDP port " + String(_port) + ".");
+        showConnectionErrorMessage ("Error: could not connect to UDP port " + String(targetPort) + ".");
     }
 }
 
-void MainComponent::updateIP(String ip)
+void MainComponent::updateIP (String ip)
 {
-    _ip = ip;
+    targetIP = ip;
     connect();
 }
 
-void MainComponent::updatePort(int port)
+void MainComponent::updatePort (int port)
 {
-    _port = port;
+    targetPort = port;
     connect();
 }
 
 void MainComponent::buildAddressPatterns()
 {
-    _roomSizeAddressPattern = "/parameter/" + _synthName + "/Room_Size";
-    _dampingAddressPattern = "/parameter/" + _synthName + "/Damping";
+    roomSizeAddressPattern = "/parameter/" + synthName + "/Room_Size";
+    dampingAddressPattern = "/parameter/" + synthName + "/Damping";
 }
 
-void MainComponent::showConnectionErrorMessage(const String& messageText)
+void MainComponent::showConnectionErrorMessage (const String& messageText)
 {
-    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+    AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
                                      "UDP connection error",
                                      messageText,
                                      "OK");
 }
 
-void MainComponent::paint(Graphics& g)
+void MainComponent::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 }
 
 void MainComponent::resized()
 {
-    _synthGUI.setBounds(getLocalBounds());
+    synthGUI.setBounds (getLocalBounds());
 }
 
-void MainComponent::labelTextChanged(Label* labelThatHasChanged)
+void MainComponent::labelTextChanged (Label* labelThatHasChanged)
 {
-    if(labelThatHasChanged == &_synthGUI.getPortNumberField())
+    if (labelThatHasChanged == &synthGUI.getPortNumberField())
     {
-        const int newPort = _synthGUI.getPortNumberField().getTextValue().toString().getIntValue();
-        updatePort(newPort);
+        const int newPort = synthGUI.getPortNumberField().getTextValue().toString().getIntValue();
+        updatePort (newPort);
     }
-    else if(labelThatHasChanged == &_synthGUI.getIPField())
+    else if (labelThatHasChanged == &synthGUI.getIPField())
     {
-        const String newIP = _synthGUI.getIPField().getTextValue().toString();
+        const String newIP = synthGUI.getIPField().getTextValue().toString();
         updateIP(newIP);
     }
-    else if(labelThatHasChanged == &_synthGUI.getSynthNameField())
+    else if (labelThatHasChanged == &synthGUI.getSynthNameField())
     {
-        _synthName = _synthGUI.getSynthNameField().getTextValue().toString();
+        synthName = synthGUI.getSynthNameField().getTextValue().toString();
         buildAddressPatterns();
     }
 }

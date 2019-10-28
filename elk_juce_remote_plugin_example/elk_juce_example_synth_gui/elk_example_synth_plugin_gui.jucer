@@ -10,7 +10,6 @@
       <FILE id="CDt7IF" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
     <GROUP id="{00539974-1407-7F9D-AE18-EF6AA2BBC8EC}" name="Assets">
-      <FILE id="OUSsAb" name="DemoUtilities.h" compile="0" resource="0" file="../elk_juce_example_common/DemoUtilities.h"/>
       <FILE id="FTcQNW" name="ElkLogo.cpp" compile="1" resource="0" file="../elk_juce_example_common/ElkLogo.cpp"/>
       <FILE id="tIpINM" name="ElkLogo.h" compile="0" resource="0" file="../elk_juce_example_common/ElkLogo.h"/>
       <FILE id="YhxY1i" name="MaterialLookAndFeel.h" compile="0" resource="0"
