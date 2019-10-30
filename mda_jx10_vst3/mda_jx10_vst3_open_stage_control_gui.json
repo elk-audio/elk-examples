@@ -33,7 +33,7 @@
         {
           "type": "panel",
           "top": 330,
-          "left": 210,
+          "left": 280,
           "id": "Filter Envelope",
           "linkId": "",
           "width": 350,
@@ -89,7 +89,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -128,7 +129,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -167,7 +169,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -206,7 +209,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -214,7 +218,7 @@
         {
           "type": "panel",
           "top": 330,
-          "left": 570,
+          "left": 640,
           "id": "AMP Envelope",
           "linkId": "",
           "width": 350,
@@ -270,7 +274,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -309,7 +314,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -348,7 +354,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -387,7 +394,8 @@
               "horizontal": false,
               "alignRight": false,
               "meter": false,
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -448,7 +456,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
@@ -484,7 +493,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -545,7 +555,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
@@ -581,7 +592,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
@@ -617,7 +629,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -628,7 +641,7 @@
           "left": 0,
           "id": "Oscillator",
           "linkId": "",
-          "width": 500,
+          "width": 540,
           "height": 160,
           "label": "auto",
           "color": "auto",
@@ -678,12 +691,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 100,
+              "left": 110,
               "id": "Octave",
               "linkId": "",
               "width": "auto",
@@ -714,12 +728,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 200,
+              "left": 220,
               "id": "Semi",
               "linkId": "",
               "width": "auto",
@@ -750,12 +765,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 300,
+              "left": 330,
               "id": "Fine",
               "linkId": "",
               "width": "auto",
@@ -786,12 +802,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 400,
+              "left": 440,
               "id": "Noise",
               "linkId": "",
               "width": "auto",
@@ -822,7 +839,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -883,7 +901,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
@@ -919,7 +938,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
@@ -955,7 +975,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -963,10 +984,10 @@
         {
           "type": "panel",
           "top": 0,
-          "left": 510,
+          "left": 550,
           "id": "Filter",
           "linkId": "",
-          "width": 400,
+          "width": 440,
           "height": 160,
           "label": "auto",
           "color": "auto",
@@ -1016,12 +1037,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 100,
+              "left": 110,
               "id": "Resonance",
               "linkId": "",
               "width": "auto",
@@ -1052,12 +1074,13 @@
               "target": "",
               "bypass": false,
               "touchAddress": "",
-              "angle": 270
+              "angle": 270,
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 200,
+              "left": 220,
               "id": "Envelope",
               "linkId": "",
               "width": "auto",
@@ -1088,12 +1111,13 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "knob",
               "top": 0,
-              "left": 300,
+              "left": 330,
               "id": "Velocity",
               "linkId": "",
               "width": "auto",
@@ -1124,7 +1148,8 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "touchAddress": ""
+              "touchAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -1135,7 +1160,7 @@
           "left": 0,
           "id": "Performance Controls",
           "linkId": "",
-          "width": 200,
+          "width": 270,
           "height": 320,
           "label": "auto",
           "color": "auto",
@@ -1154,7 +1179,7 @@
             {
               "type": "fader",
               "top": 0,
-              "left": 0,
+              "left": 20,
               "id": "Pitch Bend",
               "linkId": "",
               "width": 100,
@@ -1188,12 +1213,13 @@
               "target": "",
               "bypass": false,
               "touchAddress": "",
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             },
             {
               "type": "fader",
               "top": 0,
-              "left": 100,
+              "left": 150,
               "id": "Mod",
               "linkId": "",
               "width": 100,
@@ -1227,7 +1253,8 @@
               "target": "",
               "bypass": false,
               "touchAddress": "",
-              "meterAddress": ""
+              "meterAddress": "",
+              "sensitivity": 1
             }
           ],
           "tabs": []
@@ -1266,7 +1293,8 @@
           "steps": "",
           "logScale": false,
           "unit": "",
-          "origin": "auto"
+          "origin": "auto",
+          "sensitivity": 1
         }
       ],
       "tabs": [],
