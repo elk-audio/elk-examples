@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''elk-fx-main : glue app example for multi fx '''
 
-__copyright__   = 'Copyright (C) 2019 MIND Music Labs'
+__copyright__   = 'Copyright (C) Elk 2019 '
 
 import sys
 import os
