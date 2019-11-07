@@ -9,19 +9,20 @@
   <MAINGROUP id="zI9r2C" name="Elk_JUCE_Example_Synth">
     <GROUP id="{70CE292C-E9C5-C029-B95A-F7DF41E5F74C}" name="Source">
       <FILE id="RDYDVM" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="G2QtX6" name="sample.cpp" compile="1" resource="0" file="Source/sample.cpp"/>
-      <FILE id="FGzjVg" name="sample.h" compile="0" resource="0" file="Source/sample.h"/>
       <FILE id="h3AjrY" name="SynthEditor.h" compile="0" resource="0" file="Source/SynthEditor.h"/>
+      <FILE id="NQn1zZ" name="SynthGUI.h" compile="0" resource="0" file="Source/SynthGUI.h"/>
       <FILE id="SQAe38" name="SynthOSCReceiver.h" compile="0" resource="0"
             file="Source/SynthOSCReceiver.h"/>
       <FILE id="yTYE4W" name="SynthProcessor.h" compile="0" resource="0"
             file="Source/SynthProcessor.h"/>
     </GROUP>
     <GROUP id="V3VegV" name="Assets">
-      <FILE id="r0GGYi" name="ElkLogo.cpp" compile="1" resource="0" file="../elk_juce_example_common/ElkLogo.cpp"/>
-      <FILE id="BN9pL5" name="ElkLogo.h" compile="0" resource="0" file="../elk_juce_example_common/ElkLogo.h"/>
-      <FILE id="HeXZ1Z" name="MaterialLookAndFeel.h" compile="0" resource="0"
-            file="../elk_juce_example_common/MaterialLookAndFeel.h"/>
+      <FILE id="G2QtX6" name="sample.cpp" compile="1" resource="0" file="Source/sample.cpp"/>
+      <FILE id="FGzjVg" name="sample.h" compile="0" resource="0" file="Source/sample.h"/>
+      <FILE id="cYNH3A" name="ElkLogo.cpp" compile="1" resource="0" file="Source/ElkLogo.cpp"/>
+      <FILE id="Zm1dM8" name="ElkLogo.h" compile="0" resource="0" file="Source/ElkLogo.h"/>
+      <FILE id="J5u72i" name="MaterialLookAndFeel.h" compile="0" resource="0"
+            file="Source/MaterialLookAndFeel.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

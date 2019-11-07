@@ -28,11 +28,12 @@ public:
     {
         if (! connect (port))
         {
+            connected = false;
             DBG ("Connection Failed");
-            showConnectionErrorMessage ("Error: could not connect to UDP port " + String (port) + ".");
         }
         else
         {
+            connected = true;
             DBG("Connection Succeeded");
         }
     }
@@ -41,6 +42,11 @@ public:
     {
         synthName = name;
         buildAddressPatterns();
+    }
+
+    bool isConnected()
+    {
+        return connected;
     }
 
 private:
@@ -69,15 +75,7 @@ private:
         }
     }
 
-    void showConnectionErrorMessage(const String& messageText)
-    {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "Connection error",
-                                          messageText,
-                                          "OK");
-    }
-
-    int defaultPort {24024};
+    int defaultPort {24025};
 
     String synthName {"Elk_JUCE_Example_Synth"};
     String roomSizeAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Room_Size"};
@@ -85,6 +83,8 @@ private:
 
     Value roomSizeValue {0.5f};
     Value dampingValue {0.5f};
+
+    bool connected = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthOSCReceiver)
 };

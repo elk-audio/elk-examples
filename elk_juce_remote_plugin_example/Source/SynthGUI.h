@@ -7,18 +7,10 @@ class SynthGUI :
         public juce::Component
 {
 public:
-    enum class FieldOptions
-    {
-        ShowIPField,
-        HideIPField
-    };
-
-    SynthGUI (FieldOptions options = FieldOptions::HideIPField)
+    SynthGUI()
         : roomSizeSlider (Slider::LinearHorizontal, Slider::NoTextBox),
           dampingSlider (Slider::LinearHorizontal, Slider::NoTextBox)
     {
-        fieldOptions = options;
-
         elkGreen = Colour::fromString ("FF0EED82");
         elkYellow = Colour::fromString ("FFFFED47");
         elkPink = Colour::fromString ("FFFF5CBE");
@@ -58,18 +50,20 @@ public:
         addAndMakeVisible (synthNameField);
 
         // IP controls:
-        if (options == FieldOptions::ShowIPField)
-        {
-            portNumberLabel.setText ("Outgoing OSC Port: ", NotificationType::dontSendNotification);
-            ipField.setEditable (true, true, true);
-            addAndMakeVisible (ipLabel);
-            addAndMakeVisible (ipField);
-        }
+        ipField.setEditable (true, true, true);
+        addAndMakeVisible (ipLabel);
+        addAndMakeVisible (ipField);
 
         // Port controls:
-        addAndMakeVisible (portNumberLabel);
-        portNumberField.setEditable (true, true, true);
-        addAndMakeVisible (portNumberField);
+        addAndMakeVisible (outPortNumberLabel);
+        outPortNumberField.setEditable (true, true, true);
+        addAndMakeVisible (outPortNumberField);
+        addAndMakeVisible (outConnectedLabel);
+
+        addAndMakeVisible (inPortNumberLabel);
+        inPortNumberField.setEditable (true, true, true);
+        addAndMakeVisible (inPortNumberField);
+        addAndMakeVisible (inConnectedLabel);
 
         setSize (700, 400);
     }
@@ -96,19 +90,22 @@ public:
 
         auto labelsRow = r.removeFromTop (sliderHeight).withSizeKeepingCentre (r.getWidth(), sliderHeight);
 
-        int spacing = 0;
-
-        if (fieldOptions == FieldOptions::ShowIPField)
-            spacing = 15;
-
+        const int spacing = 15;
         synthNameLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 - 30 - spacing, labelWidth, 25);
         synthNameField.setBounds (labelsRow.getX() + labelWidth, labelsRow.getCentreY() / 2 - 30 - spacing, 250, 25);
 
         ipLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 - spacing, labelWidth, 25);
         ipField.setBounds (labelsRow.getX() + labelWidth, labelsRow.getCentreY() / 2 - spacing, 150, 25);
 
-        portNumberLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 + spacing, labelWidth, 25);
-        portNumberField.setBounds (labelsRow.getX() + labelWidth, labelsRow.getCentreY() / 2 + spacing, 50, 25);
+        outPortNumberLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 + spacing, labelWidth, 25);
+        outPortNumberField.setBounds (labelsRow.getX() + labelWidth, labelsRow.getCentreY() / 2 + spacing, 50, 25);
+        outConnectedLabel.setBounds (labelsRow.getX() + labelWidth + 50, labelsRow.getCentreY() / 2 + spacing, 150, 25);
+
+        inPortNumberLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 + spacing*3, labelWidth, 25);
+        inPortNumberField.setBounds (labelsRow.getX() + labelWidth, labelsRow.getCentreY() / 2 + spacing*3, 50, 25);
+        inConnectedLabel.setBounds (labelsRow.getX() + labelWidth + 50, labelsRow.getCentreY() / 2 + spacing*3, 150, 25);
+
+        r.removeFromTop (margin);
 
         roomSizeSlider.setBounds (r.removeFromTop (sliderHeight));
 
@@ -127,9 +124,14 @@ public:
         return dampingSlider;
     }
 
-    Label& getPortNumberField()
+    Label& getOutPortNumberField()
     {
-        return portNumberField;
+        return outPortNumberField;
+    }
+
+    Label& getInPortNumberField()
+    {
+        return inPortNumberField;
     }
 
     Label& getIPField()
@@ -142,6 +144,16 @@ public:
         return synthNameField;
     }
 
+    Label& getOutConnectedLabel()
+    {
+        return outConnectedLabel;
+    }
+
+    Label& getInConnectedLabel()
+    {
+        return inConnectedLabel;
+    }
+
 private:
     MaterialLookAndFeel materialLookAndFeel;
 
@@ -150,19 +162,23 @@ private:
 
     std::unique_ptr <Drawable> logoIcon;
 
-    FieldOptions fieldOptions {FieldOptions::HideIPField};
-
     Label synthNameLabel {{}, "Synth Name (no spaces): " };
     Label synthNameField {{}, "Elk_JUCE_Example_Synth" };
 
     Label ipLabel {{}, "Target IP Address: " };
     Label ipField {{}, "127.0.0.1" };
 
-    Label portNumberLabel {{}, "Incoming OSC Port: " };
-    Label portNumberField {{}, "24024" };
+    Label outPortNumberLabel {{}, "Outgoing OSC Port: " };
+    Label outPortNumberField {{}, "24024" };
+
+    Label inPortNumberLabel {{}, "Incoming OSC Port: " };
+    Label inPortNumberField {{}, "24025" };
 
     Label roomSizeLabel {{}, "Room Size:" };
     Label dampingLabel {{}, "Damping:" };
+
+    Label inConnectedLabel {"(connected)"};
+    Label outConnectedLabel {"(connected)"};
 
     Colour elkGreen;
     Colour elkYellow;

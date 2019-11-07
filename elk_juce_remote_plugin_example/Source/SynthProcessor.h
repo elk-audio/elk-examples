@@ -118,7 +118,7 @@ private:
         synth.addSound (sound);
     }
 
-    static constexpr int maxNumVoices = 5;
+    static constexpr int maxNumVoices = 20;
 
     AudioFormatManager formatManager;
 
