@@ -101,7 +101,7 @@ public:
         auto sliderHeight = r.getHeight() / 12;
         int labelWidth = 160;
 
-        logoIcon->setTransformToFit (r.removeFromLeft (proportionOfWidth (0.33))
+        logoIcon->setTransformToFit (r.removeFromLeft (proportionOfWidth (0.33f))
                                          .withSizeKeepingCentre (logoHeight, logoHeight)
                                          .toFloat(),
                                      RectanglePlacement::fillDestination);

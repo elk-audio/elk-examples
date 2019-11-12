@@ -44,7 +44,7 @@ public:
         reverb.setSampleRate (lastSampleRate);
 
         filter.state = new StateVariableFilter::Parameters<float>;
-        filter.prepare ( { lastSampleRate, static_cast<uint32> (estimatedMaxSizeOfBuffer), 2 });
+        filter.prepare ({lastSampleRate, static_cast<uint32> (estimatedMaxSizeOfBuffer), 2 });
     }
 
     void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
@@ -58,14 +58,14 @@ public:
         auto resonance = static_cast<float> (resonanceParam->get());
         auto type = static_cast<StateVariableFilter::Parameters<float>::Type> (0);
 
-        cutoff = lerp(0.0, 1.0, 20.0, 20000.0, cutoff);
-        resonance = lerp(0.0, 1.0, 0.3, 20.0, resonance);
+        cutoff = lerp (0.0f, 1.0f, 20.0f, 20000.0f, cutoff);
+        resonance = lerp (0.0f, 1.0f, 0.3f, 20.0f, resonance);
 
         filter.state->type = type;
         filter.state->setCutOffFrequency (lastSampleRate, cutoff, resonance);
 
         synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
-
+		
         dsp::AudioBlock<float> block (buffer);
         filter.process (dsp::ProcessContextReplacing<float>(block));
 
@@ -83,7 +83,7 @@ public:
 
     bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
-    bool silenceInProducesSilenceOut() const override { return false; }
+    
     double getTailLengthSeconds() const override { return 0.0; }
 
     AudioProcessorEditor* createEditor() override { return new SynthEditor (*this); }
@@ -136,13 +136,14 @@ private:
 
         BigInteger midiNotes;
         midiNotes.setRange (0, 126, true);
-        SynthesiserSound::Ptr newSound = new SamplerSound ("Voice", *formatReader, midiNotes, 0x40, 0.0, 0.0, 10.0);
+        SynthesiserSound::Ptr newSound = new SamplerSound ("Voice", *formatReader, midiNotes, 0x40, 0.1, 0.3, 1.0);
+
         synth.removeSound (0);
         sound = newSound;
         synth.addSound (sound);
     }
 
-    double lerp (float x1, float x2, float y1, float y2, float xInt)
+    float lerp (float x1, float x2, float y1, float y2, float xInt)
     {
         return y1 + (y2 - y1) / (x2 - x1) * (xInt - x1);
     }
@@ -154,7 +155,8 @@ private:
     double lastSampleRate;
 
     juce::Reverb reverb;
-    Synthesiser synth;
+	juce::Synthesiser synth;
+
     SynthesiserSound::Ptr sound;
 
     ProcessorDuplicator<StateVariableFilter::Filter<float>, StateVariableFilter::Parameters<float>> filter;

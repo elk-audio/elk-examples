@@ -89,6 +89,8 @@ public:
         Slider& cutoffSlider = synthGUI.getCutoffSlider();
         cutoffSlider.setValue (cutoffValue, NotificationType::dontSendNotification);
 
+		cutoffSlider.setSkewFactor(0.5);
+
         cutoffSlider.onValueChange = [this]
         {
             const float sliderValue = static_cast<float> (synthGUI.getCutoffSlider().getValue());
@@ -305,9 +307,9 @@ private:
 
     AudioProcessorParameter* getParameter (const String& paramId)
     {
-        if (auto* processor = getAudioProcessor())
+        if (auto* proc = getAudioProcessor())
         {
-            auto& params = processor->getParameters();
+            auto& params = proc->getParameters();
 
             for (auto p : params)
             {
