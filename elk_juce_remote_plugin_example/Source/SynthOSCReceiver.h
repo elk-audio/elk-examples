@@ -24,6 +24,16 @@ public:
         return dampingValue;
     }
 
+    Value& getCutoffValue()
+    {
+        return cutoffValue;
+    }
+
+    Value& getResonanceValue()
+    {
+        return resonanceValue;
+    }
+
     void changePort (int port)
     {
         if (! connect (port))
@@ -54,6 +64,8 @@ private:
     {
         roomSizeAddressPattern = "/parameter/" + synthName + "/Room_Size";
         dampingAddressPattern = "/parameter/" + synthName + "/Damping";
+        cutoffAddressPattern = "/parameter/" + synthName + "/Cutoff";
+        resonanceAddressPattern = "/parameter/" + synthName + "/Resonance";
     }
 
     void oscMessageReceived (const OSCMessage& message) override
@@ -72,6 +84,14 @@ private:
             {
                 dampingValue.setValue (jlimit (0.0f, 1.0f, message[0].getFloat32()));
             }
+            else if (message.getAddressPattern().matches (cutoffAddressPattern))
+            {
+                cutoffValue.setValue (jlimit (0.0f, 1.0f, message[0].getFloat32()));
+            }
+            else if (message.getAddressPattern().matches (resonanceAddressPattern))
+            {
+                resonanceValue.setValue (jlimit (0.0f, 1.0f, message[0].getFloat32()));
+            }
         }
     }
 
@@ -80,9 +100,14 @@ private:
     String synthName {"Elk_JUCE_Example_Synth"};
     String roomSizeAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Room_Size"};
     String dampingAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Damping"};
+    String cutoffAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Cutoff"};
+    String resonanceAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Resonance"};
 
     Value roomSizeValue {0.5f};
     Value dampingValue {0.5f};
+
+    Value cutoffValue {0.5f};
+    Value resonanceValue {0.5f};
 
     bool connected = false;
 

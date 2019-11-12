@@ -8,8 +8,10 @@ class SynthGUI :
 {
 public:
     SynthGUI()
-        : roomSizeSlider (Slider::LinearHorizontal, Slider::NoTextBox),
-          dampingSlider (Slider::LinearHorizontal, Slider::NoTextBox)
+        : roomSizeSlider (Slider::LinearHorizontal, Slider::TextBoxLeft),
+          dampingSlider (Slider::LinearHorizontal, Slider::TextBoxLeft),
+          cutoffSlider (Slider::LinearHorizontal, Slider::TextBoxLeft),
+          resonanceSlider (Slider::LinearHorizontal, Slider::TextBoxLeft)
     {
         elkGreen = Colour::fromString ("FF0EED82");
         elkYellow = Colour::fromString ("FFFFED47");
@@ -17,6 +19,8 @@ public:
         elkBlue = Colour::fromString ("FF0E1C95");
 
         LookAndFeel::setDefaultLookAndFeel (&materialLookAndFeel);
+
+        // Reverb:
 
         addAndMakeVisible (roomSizeLabel);
         roomSizeLabel.attachToComponent (&roomSizeSlider, false);
@@ -33,6 +37,24 @@ public:
         dampingSlider.setColour (Slider::thumbColourId, elkPink);
 
         addAndMakeVisible (dampingSlider);
+
+        // Filter:
+
+        addAndMakeVisible (cutoffLabel);
+        cutoffLabel.attachToComponent (&cutoffSlider, false);
+
+        cutoffSlider.setColour (Slider::trackColourId, elkGreen);
+        cutoffSlider.setColour (Slider::thumbColourId, elkYellow);
+
+        addAndMakeVisible (cutoffSlider);
+
+        addAndMakeVisible (resonanceLabel);
+        resonanceLabel.attachToComponent (&resonanceSlider, false);
+
+        resonanceSlider.setColour (Slider::trackColourId, elkGreen);
+        resonanceSlider.setColour (Slider::thumbColourId, elkPink);
+
+        addAndMakeVisible (resonanceSlider);
 
         MemoryInputStream in (ElkLogo::Elk_audio_logo_svg, ElkLogo::Elk_audio_logo_svgSize, false);
 
@@ -64,8 +86,6 @@ public:
         inPortNumberField.setEditable (true, true, true);
         addAndMakeVisible (inPortNumberField);
         addAndMakeVisible (inConnectedLabel);
-
-        setSize (700, 400);
     }
 
     void paint (Graphics& g) override
@@ -76,9 +96,9 @@ public:
     void resized() override
     {
         auto r = getLocalBounds();
-        auto logoHeight = r.getHeight() / 3;
-        auto margin = r.getHeight() / 10;
-        auto sliderHeight = r.getHeight() / 6;
+        auto logoHeight = r.getHeight() / 4;
+        auto margin = r.getHeight() / 15;
+        auto sliderHeight = r.getHeight() / 12;
         int labelWidth = 160;
 
         logoIcon->setTransformToFit (r.removeFromLeft (proportionOfWidth (0.33))
@@ -86,9 +106,9 @@ public:
                                          .toFloat(),
                                      RectanglePlacement::fillDestination);
 
-        r.removeFromTop(sliderHeight);
+        r.removeFromTop(sliderHeight*2);
 
-        auto labelsRow = r.removeFromTop (sliderHeight).withSizeKeepingCentre (r.getWidth(), sliderHeight);
+        auto labelsRow = r.removeFromTop (sliderHeight).withSizeKeepingCentre (r.getWidth(), sliderHeight*2);
 
         const int spacing = 15;
         synthNameLabel.setBounds (labelsRow.getX(), labelsRow.getCentreY() / 2 - 30 - spacing, labelWidth, 25);
@@ -107,6 +127,14 @@ public:
 
         r.removeFromTop (margin);
 
+        cutoffSlider.setBounds (r.removeFromTop (sliderHeight));
+
+        r.removeFromTop (margin);
+
+        resonanceSlider.setBounds (r.removeFromTop (sliderHeight));
+
+        r.removeFromTop (margin);
+
         roomSizeSlider.setBounds (r.removeFromTop (sliderHeight));
 
         r.removeFromTop (margin);
@@ -122,6 +150,16 @@ public:
     Slider& getDampingSlider()
     {
         return dampingSlider;
+    }
+
+    Slider& getCutoffSlider()
+    {
+        return cutoffSlider;
+    }
+
+    Slider& getResonanceSlider()
+    {
+        return resonanceSlider;
     }
 
     Label& getOutPortNumberField()
@@ -160,6 +198,9 @@ private:
     Slider roomSizeSlider;
     Slider dampingSlider;
 
+    Slider cutoffSlider;
+    Slider resonanceSlider;
+
     std::unique_ptr <Drawable> logoIcon;
 
     Label synthNameLabel {{}, "Synth Name (no spaces): " };
@@ -176,6 +217,9 @@ private:
 
     Label roomSizeLabel {{}, "Room Size:" };
     Label dampingLabel {{}, "Damping:" };
+
+    Label cutoffLabel {{}, "Cutoff:" };
+    Label resonanceLabel {{}, "Resonance:" };
 
     Label inConnectedLabel {"(connected)"};
     Label outConnectedLabel {"(connected)"};

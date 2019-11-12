@@ -17,8 +17,8 @@
             file="Source/SynthProcessor.h"/>
     </GROUP>
     <GROUP id="V3VegV" name="Assets">
-      <FILE id="G2QtX6" name="sample.cpp" compile="1" resource="0" file="Source/sample.cpp"/>
-      <FILE id="FGzjVg" name="sample.h" compile="0" resource="0" file="Source/sample.h"/>
+      <FILE id="I58Vp0" name="cello.cpp" compile="1" resource="0" file="Source/cello.cpp"/>
+      <FILE id="M9Bjzn" name="cello.h" compile="0" resource="0" file="Source/cello.h"/>
       <FILE id="cYNH3A" name="ElkLogo.cpp" compile="1" resource="0" file="Source/ElkLogo.cpp"/>
       <FILE id="Zm1dM8" name="ElkLogo.h" compile="0" resource="0" file="Source/ElkLogo.h"/>
       <FILE id="J5u72i" name="MaterialLookAndFeel.h" compile="0" resource="0"
@@ -35,6 +35,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
@@ -57,6 +58,7 @@
         <MODULEPATH id="juce_audio_devices" path="../../juce"/>
         <MODULEPATH id="juce_audio_basics" path="../../juce"/>
         <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </CLION>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
@@ -78,6 +80,7 @@
         <MODULEPATH id="juce_audio_devices" path="../../juce"/>
         <MODULEPATH id="juce_audio_basics" path="../../juce"/>
         <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>

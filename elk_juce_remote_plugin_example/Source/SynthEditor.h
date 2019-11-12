@@ -24,13 +24,14 @@ public:
     {
         addAndMakeVisible (synthGUI);
 
+        // Room Size Slider:
         auto roomSizeValue = getParameterValue (roomSizeName);
         Slider& roomSizeSlider = synthGUI.getRoomSizeSlider();
         roomSizeSlider.setValue (roomSizeValue, NotificationType::dontSendNotification);
 
         roomSizeSlider.onValueChange = [this]
         {
-            const float sliderValue = static_cast <float> (synthGUI.getRoomSizeSlider().getValue());
+            const float sliderValue = static_cast<float> (synthGUI.getRoomSizeSlider().getValue());
             const float roomSizeValue = getParameterValue (roomSizeName);
 
             if (! approximatelyEqual (roomSizeValue, sliderValue))
@@ -38,7 +39,7 @@ public:
                 setParameterValue (roomSizeName, sliderValue);
 
                 // create and send an OSC message with an address and a float value:
-                float value = static_cast <float> (synthGUI.getRoomSizeSlider().getValue());
+                float value = static_cast<float> (synthGUI.getRoomSizeSlider().getValue());
 
                 if (! oscSender.send (roomSizeAddressPattern, value))
                 {
@@ -53,21 +54,22 @@ public:
 
         roomSizeSlider.setRange (0.0, 1.0);
 
+        // Damping Slider:
         auto dampingValue = getParameterValue (dampingName);
         Slider& dampingSlider = synthGUI.getDampingSlider();
         dampingSlider.setValue (dampingValue, NotificationType::dontSendNotification);
 
         dampingSlider.onValueChange = [this]
         {
-            const float sliderValue = static_cast <float> (synthGUI.getDampingSlider().getValue());
+            const float sliderValue = static_cast<float> (synthGUI.getDampingSlider().getValue());
             const float dampingValue = getParameterValue (dampingName);
 
             if (! approximatelyEqual (dampingValue, sliderValue))
             {
-                setParameterValue (dampingName, (float) synthGUI.getDampingSlider().getValue());
+                setParameterValue (dampingName, static_cast<float> (synthGUI.getDampingSlider().getValue()));
 
                 // create and send an OSC message with an address and a float value:
-                float value = static_cast <float> (synthGUI.getDampingSlider().getValue());
+                float value = static_cast<float> (synthGUI.getDampingSlider().getValue());
 
                 if (! oscSender.send (dampingAddressPattern, value))
                 {
@@ -82,6 +84,66 @@ public:
 
         dampingSlider.setRange (0.0, 1.0);
 
+        // Cutoff Slider:
+        auto cutoffValue = getParameterValue (cutoffName);
+        Slider& cutoffSlider = synthGUI.getCutoffSlider();
+        cutoffSlider.setValue (cutoffValue, NotificationType::dontSendNotification);
+
+        cutoffSlider.onValueChange = [this]
+        {
+            const float sliderValue = static_cast<float> (synthGUI.getCutoffSlider().getValue());
+            const float cutoffValue = getParameterValue (cutoffName);
+
+            if (! approximatelyEqual (cutoffValue, sliderValue))
+            {
+                setParameterValue (cutoffName, static_cast<float> (synthGUI.getCutoffSlider().getValue()));
+
+                // create and send an OSC message with an address and a float value:
+                float value = static_cast<float> (synthGUI.getCutoffSlider().getValue());
+
+                if (! oscSender.send (cutoffAddressPattern, value))
+                {
+                    updateOutConnectedLabel (false);
+                }
+                else
+                {
+                    DBG ("Sent value " + String (value) + " to AP " + cutoffAddressPattern);
+                }
+            }
+        };
+
+        cutoffSlider.setRange (0.0, 1.0);
+
+        // Resonance Slider:
+        auto resonanceValue = getParameterValue (resonanceName);
+        Slider& resonanceSlider = synthGUI.getResonanceSlider();
+        resonanceSlider.setValue (resonanceValue, NotificationType::dontSendNotification);
+
+        resonanceSlider.onValueChange = [this]
+        {
+            const float sliderValue = static_cast<float> (synthGUI.getResonanceSlider().getValue());
+            const float resonanceValue = getParameterValue (resonanceName);
+
+            if (! approximatelyEqual (resonanceValue, sliderValue))
+            {
+                setParameterValue (resonanceName, static_cast<float> (synthGUI.getResonanceSlider().getValue()));
+
+                // create and send an OSC message with an address and a float value:
+                float value = static_cast<float> (synthGUI.getResonanceSlider().getValue());
+
+                if (! oscSender.send (resonanceAddressPattern, value))
+                {
+                    updateOutConnectedLabel (false);
+                }
+                else
+                {
+                    DBG ("Sent value " + String (value) + " to AP " + resonanceAddressPattern);
+                }
+            }
+        };
+
+        resonanceSlider.setRange (0.0, 1.0);
+
         synthGUI.getInPortNumberField().addListener (this);
         synthGUI.getSynthNameField().addListener (this);
         synthGUI.getOutPortNumberField().addListener (this);
@@ -90,11 +152,14 @@ public:
         oscRreceiver.getRoomSizeValue().addListener (this);
         oscRreceiver.getDampingValue().addListener (this);
 
+        oscRreceiver.getCutoffValue().addListener (this);
+        oscRreceiver.getResonanceValue().addListener (this);
+
         updateInConnectedLabel();
 
         connectSender();
 
-        setSize (700, 400);
+        setSize (700, 600);
         startTimer (100);
     }
 
@@ -113,6 +178,8 @@ private:
     {
         roomSizeAddressPattern = "/parameter/" + synthName + "/Room_Size";
         dampingAddressPattern = "/parameter/" + synthName + "/Damping";
+        cutoffAddressPattern = "/parameter/" + synthName + "/Cutoff";
+        resonanceAddressPattern = "/parameter/" + synthName + "/Resonance";
     }
 
     void connectSender()
@@ -196,18 +263,34 @@ private:
     {
         if (value.refersToSameSourceAs (oscRreceiver.getRoomSizeValue()))
         {
-            if (! approximatelyEqual (static_cast <double> (value.getValue()), synthGUI.getRoomSizeSlider().getValue()))
+            if (! approximatelyEqual (static_cast<double> (value.getValue()), synthGUI.getRoomSizeSlider().getValue()))
             {
-                synthGUI.getRoomSizeSlider().setValue(static_cast <double> (value.getValue()),
+                synthGUI.getRoomSizeSlider().setValue(static_cast<double> (value.getValue()),
                                                       NotificationType::sendNotification);
             }
         }
         else if (value.refersToSameSourceAs (oscRreceiver.getDampingValue()))
         {
-            if (! approximatelyEqual (static_cast <double> (value.getValue()), synthGUI.getDampingSlider().getValue()))
+            if (! approximatelyEqual (static_cast<double> (value.getValue()), synthGUI.getDampingSlider().getValue()))
             {
-                synthGUI.getDampingSlider().setValue (static_cast <double> (value.getValue()),
+                synthGUI.getDampingSlider().setValue (static_cast<double> (value.getValue()),
                                                       NotificationType::sendNotification);
+            }
+        }
+        else if (value.refersToSameSourceAs (oscRreceiver.getCutoffValue()))
+        {
+            if (! approximatelyEqual (static_cast<double> (value.getValue()), synthGUI.getCutoffSlider().getValue()))
+            {
+                synthGUI.getCutoffSlider().setValue (static_cast<double> (value.getValue()),
+                                                      NotificationType::sendNotification);
+            }
+        }
+        else if (value.refersToSameSourceAs (oscRreceiver.getResonanceValue()))
+        {
+            if (! approximatelyEqual (static_cast<double> (value.getValue()), synthGUI.getResonanceSlider().getValue()))
+            {
+                synthGUI.getResonanceSlider().setValue (static_cast<double> (value.getValue()),
+                                                     NotificationType::sendNotification);
             }
         }
     }
@@ -216,6 +299,8 @@ private:
     {
         synthGUI.getRoomSizeSlider().setValue (getParameterValue (roomSizeName), NotificationType::dontSendNotification);
         synthGUI.getDampingSlider().setValue (getParameterValue (dampingName), NotificationType::dontSendNotification);
+        synthGUI.getCutoffSlider().setValue (getParameterValue (cutoffName), NotificationType::dontSendNotification);
+        synthGUI.getResonanceSlider().setValue (getParameterValue (resonanceName), NotificationType::dontSendNotification);
     }
 
     AudioProcessorParameter* getParameter (const String& paramId)
@@ -226,7 +311,7 @@ private:
 
             for (auto p : params)
             {
-                if (auto* param = dynamic_cast <AudioProcessorParameterWithID*> (p))
+                if (auto* param = dynamic_cast<AudioProcessorParameterWithID*> (p))
                 {
                     if (param->paramID == paramId)
                         return param;
@@ -263,8 +348,14 @@ private:
     String roomSizeAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Room_Size"};
     String dampingAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Damping"};
 
+    String cutoffAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Cutoff"};
+    String resonanceAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Resonance"};
+
     const String dampingName {"damping"};
     const String roomSizeName {"roomSize"};
+
+    const String cutoffName {"cutoff"};
+    const String resonanceName {"resonance"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthEditor)
 };

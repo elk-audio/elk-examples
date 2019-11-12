@@ -1,9 +1,10 @@
 #pragma once
 
-//#include "../../elk_juce_example_common/DemoUtilities.h"
 #include "SynthOSCReceiver.h"
 #include "SynthEditor.h"
-#include "sample.h"
+#include "cello.h"
+
+using namespace dsp;
 
 class SynthProcessor : public AudioProcessor
 {
@@ -16,13 +17,16 @@ public:
         addParameter (roomSizeParam = new AudioParameterFloat ("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
         addParameter (dampingParam = new AudioParameterFloat ("damping", "Damping", 0.0f, 1.0f, 0.5f));
 
+        addParameter (cutoffParam = new AudioParameterFloat ("cutoff", "Cutoff", 0.0f, 1.0f, 0.5f));
+        addParameter (resonanceParam = new AudioParameterFloat ("resonance", "Resonance", 0.0f, 1.0f, 0.5f));
+
         formatManager.registerBasicFormats();
 
         for (auto i = 0; i < maxNumVoices; ++i)
             synth.addVoice (new SamplerVoice());
 
-        auto stream = new MemoryInputStream (sample::sample_ogg, sample::sample_oggSize, false);
-        loadNewSample (stream, "ogg");
+        auto stream = new MemoryInputStream (cello::cello_wav, cello::cello_wavSize, false);
+        loadNewSample (stream, "wav");
     }
 
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override
@@ -38,24 +42,40 @@ public:
 
         synth.setCurrentPlaybackSampleRate (lastSampleRate);
         reverb.setSampleRate (lastSampleRate);
+
+        filter.state = new StateVariableFilter::Parameters<float>;
+        filter.prepare ( { lastSampleRate, static_cast<uint32> (estimatedMaxSizeOfBuffer), 2 });
     }
 
-    void processBlock (AudioBuffer <float>& buffer, MidiBuffer& midiMessages) override
+    void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
     {
-        Reverb::Parameters reverbParameters;
+        juce::Reverb::Parameters reverbParameters;
         reverbParameters.roomSize = roomSizeParam->get();
         reverbParameters.damping = dampingParam->get();
-
         reverb.setParameters (reverbParameters);
+
+        auto cutoff = static_cast<float> (cutoffParam->get());
+        auto resonance = static_cast<float> (resonanceParam->get());
+        auto type = static_cast<StateVariableFilter::Parameters<float>::Type> (0);
+
+        cutoff = lerp(0.0, 1.0, 20.0, 20000.0, cutoff);
+        resonance = lerp(0.0, 1.0, 0.3, 20.0, resonance);
+
+        filter.state->type = type;
+        filter.state->setCutOffFrequency (lastSampleRate, cutoff, resonance);
+
         synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+
+        dsp::AudioBlock<float> block (buffer);
+        filter.process (dsp::ProcessContextReplacing<float>(block));
 
         if (getMainBusNumOutputChannels() == 1)
         {
-            reverb.processMono (buffer.getWritePointer(0), buffer.getNumSamples());
+            reverb.processMono (buffer.getWritePointer (0), buffer.getNumSamples());
         }
         else if (getMainBusNumOutputChannels() == 2)
         {
-            reverb.processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), buffer.getNumSamples());
+            reverb.processStereo (buffer.getWritePointer (0), buffer.getWritePointer (1), buffer.getNumSamples());
         }
     }
 
@@ -95,14 +115,18 @@ public:
 
         stream.writeFloat (*roomSizeParam);
         stream.writeFloat (*dampingParam);
+        stream.writeFloat (*cutoffParam);
+        stream.writeFloat (*resonanceParam);
     }
 
     void setStateInformation (const void* data, int sizeInBytes) override
     {
-        MemoryInputStream stream (data, static_cast <size_t> (sizeInBytes), false);
+        MemoryInputStream stream (data, static_cast<size_t> (sizeInBytes), false);
 
         roomSizeParam->setValueNotifyingHost (stream.readFloat());
         dampingParam->setValueNotifyingHost (stream.readFloat());
+        cutoffParam->setValueNotifyingHost (stream.readFloat());
+        resonanceParam->setValueNotifyingHost (stream.readFloat());
     }
 
 private:
@@ -118,18 +142,28 @@ private:
         synth.addSound (sound);
     }
 
+    double lerp (float x1, float x2, float y1, float y2, float xInt)
+    {
+        return y1 + (y2 - y1) / (x2 - x1) * (xInt - x1);
+    }
+
     static constexpr int maxNumVoices = 20;
 
     AudioFormatManager formatManager;
 
     double lastSampleRate;
 
-    Reverb reverb;
+    juce::Reverb reverb;
     Synthesiser synth;
     SynthesiserSound::Ptr sound;
 
+    ProcessorDuplicator<StateVariableFilter::Filter<float>, StateVariableFilter::Parameters<float>> filter;
+
     AudioParameterFloat* roomSizeParam;
     AudioParameterFloat* dampingParam;
+
+    AudioParameterFloat* cutoffParam;
+    AudioParameterFloat* resonanceParam;
 
     int currentProgram;
 
