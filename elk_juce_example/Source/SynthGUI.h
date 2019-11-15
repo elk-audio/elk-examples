@@ -204,7 +204,7 @@ private:
     std::unique_ptr <Drawable> logoIcon;
 
     Label synthNameLabel {{}, "Synth Name (no spaces): " };
-    Label synthNameField {{}, "Elk_JUCE_Example_Synth" };
+    Label synthNameField {{}, "elk_juce_example" };
 
     Label ipLabel {{}, "Target IP Address: " };
     Label ipField {{}, "127.0.0.1" };
@@ -213,7 +213,7 @@ private:
     Label outPortNumberField {{}, "24024" };
 
     Label inPortNumberLabel {{}, "Incoming OSC Port: " };
-    Label inPortNumberField {{}, "24025" };
+    Label inPortNumberField {{}, "25024" };
 
     Label roomSizeLabel {{}, "Room Size:" };
     Label dampingLabel {{}, "Damping:" };

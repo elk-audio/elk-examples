@@ -15,8 +15,8 @@
             ],
             "plugins" : [
                 {
-                    "path" : "/home/mind/plugins/juce-example/Elk_JUCE_Example_Synth.so",
-                    "name" : "Elk_JUCE_Example_Synth",
+                    "path" : "/home/mind/plugins/juce-example/elk_juce_example.so",
+                    "name" : "elk_juce_example",
                     "type"   : "vst2x"
                 }
             ]

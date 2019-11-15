@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="Elk_JUCE_Example_Synth" companyName="JUCE" version="1.0.0"
-              userNotes="AUv3 synthesiser audio plugin." companyWebsite="http://juce.com"
-              defines="PIP_JUCE_EXAMPLES_DIRECTORY=L2hvbWUvaWxpYXMvd29ya3NwYWNlcy9KVUNFL2V4YW1wbGVz"
+<JUCERPROJECT name="elk_juce_example" companyName="JUCE" version="1.0.0" userNotes="AUv3 synthesiser audio plugin."
+              companyWebsite="http://juce.com" defines="PIP_JUCE_EXAMPLES_DIRECTORY=L2hvbWUvaWxpYXMvd29ya3NwYWNlcy9KVUNFL2V4YW1wbGVz"
               projectType="audioplug" pluginManufacturer="JUCE" pluginAUIsSandboxSafe="1"
               pluginFormats="buildStandalone,buildVST" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn,pluginIsSynth"
               id="vXK47v" jucerVersion="5.4.5">
-  <MAINGROUP id="zI9r2C" name="Elk_JUCE_Example_Synth">
+  <MAINGROUP id="zI9r2C" name="elk_juce_example">
     <GROUP id="{70CE292C-E9C5-C029-B95A-F7DF41E5F74C}" name="Source">
       <FILE id="RDYDVM" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="h3AjrY" name="SynthEditor.h" compile="0" resource="0" file="Source/SynthEditor.h"/>

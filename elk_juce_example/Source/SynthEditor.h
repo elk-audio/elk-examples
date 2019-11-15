@@ -344,14 +344,14 @@ private:
 
     String outgoingIP {"127.0.0.1"};
     int outgoingPort {24024};
-    int incomingPort {24025};
+    int incomingPort {25024};
 
-    String synthName {"Elk_JUCE_Example_Synth"};
-    String roomSizeAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Room_Size"};
-    String dampingAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Damping"};
+    String synthName {"elk_juce_example"};
+    String roomSizeAddressPattern {"/parameter/elk_juce_example/Room_Size"};
+    String dampingAddressPattern {"/parameter/elk_juce_example/Damping"};
 
-    String cutoffAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Cutoff"};
-    String resonanceAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Resonance"};
+    String cutoffAddressPattern {"/parameter/elk_juce_example/Cutoff"};
+    String resonanceAddressPattern {"/parameter/elk_juce_example/Resonance"};
 
     const String dampingName {"damping"};
     const String roomSizeName {"roomSize"};

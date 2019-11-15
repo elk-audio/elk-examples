@@ -95,13 +95,13 @@ private:
         }
     }
 
-    int defaultPort {24025};
+    int defaultPort {25024};
 
-    String synthName {"Elk_JUCE_Example_Synth"};
-    String roomSizeAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Room_Size"};
-    String dampingAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Damping"};
-    String cutoffAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Cutoff"};
-    String resonanceAddressPattern {"/parameter/Elk_JUCE_Example_Synth/Resonance"};
+    String synthName {"elk_juce_example"};
+    String roomSizeAddressPattern {"/parameter/elk_juce_example/Room_Size"};
+    String dampingAddressPattern {"/parameter/elk_juce_example/Damping"};
+    String cutoffAddressPattern {"/parameter/elk_juce_example/Cutoff"};
+    String resonanceAddressPattern {"/parameter/elk_juce_example/Resonance"};
 
     Value roomSizeValue {0.5f};
     Value dampingValue {0.5f};
