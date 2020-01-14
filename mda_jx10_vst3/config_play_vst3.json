@@ -16,7 +16,7 @@
             "plugins" : [
                 {
                     "path" : "/usr/lib/VST3/mda-vst3.vst3",
-                    "name" : "synth",
+                    "name" : "jx10",
                     "type"   : "vst3x",
                     "uid" : "mda JX10"
                 }
