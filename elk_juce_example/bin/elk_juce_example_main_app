@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''elk_juce_example_main : glue app example for JUCE example '''
 
-__copyright__   = 'Copyright (C) 2019 MIND Music Labs'
+__copyright__ = 'Copyright (C) 2019 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden'
 
 import sys
 import os
@@ -31,23 +31,24 @@ SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
 GUI_APP_ADDRESS = ('192.168.0.155', BRIDGE_TO_GUI_PORT)
 
 # Sensor input path : (tuple of (processor, parameter, display_block_id)
-SENSEI_ENCODER_MAP = {
-    '/sensors/analog/pot_A' :   ( 'elk_juce_example', 'Cutoff', 0),
-    '/sensors/analog/pot_B' :   ( 'elk_juce_example', 'Resonance', 1),
-    '/sensors/analog/pot_C' :   ( 'elk_juce_example', 'Room Size', 2),
-    '/sensors/analog/rot_enc' :   ( 'elk_juce_example', 'Damping', 3),
+SENSEI_POT_MAP = {
+    '/sensors/analog/fader_A' :   ( 'elk_juce_example', 'Cutoff', 0),
+    '/sensors/analog/fader_B' :   ( 'elk_juce_example', 'Resonance', 1),
+    '/sensors/analog/fader_C' :   ( 'elk_juce_example', 'Room Size', 2),
+    '/sensors/analog/fader_D' :   ( 'elk_juce_example', 'Damping', 3),
 }
 
 SENSEI_BUTTONS_MAP = {
-    '/sensors/digital/button_0' : 1,
-    '/sensors/digital/button_1' : 2,
-    '/sensors/digital/button_2' : 3,
-    '/sensors/digital/button_3' : 4,
-    '/sensors/digital/button_4' : 5,
-    '/sensors/digital/button_5' : 6,
-    '/sensors/digital/button_6' : 7,
-    '/sensors/digital/button_7' : 8,
-    '/sensors/digital/button_8' : 9
+    '/sensors/digital/button_0' : 9,
+    '/sensors/digital/button_1' : 0,
+    '/sensors/digital/button_2' : 1,
+    '/sensors/digital/button_3' : 2,
+    '/sensors/digital/button_4' : 3,
+    '/sensors/digital/button_5' : 4,
+    '/sensors/digital/button_6' : 5,
+    '/sensors/digital/button_7' : 6,
+    '/sensors/digital/button_8' : 7,
+    '/sensors/digital/rot_enc_button' : 10,
 }
 
 GUI_PARAMETER_MAP = {
@@ -104,7 +105,7 @@ def set_gui_output(parameter, value):
 #  Classes     #
 ################
 
-# Simple class to manage drawing 4 parameter values on a 128 x 32 px oled display
+# Simple class to manage drawing 4 parameter values on an 128 x 32 px oled display
 class Display(object):
     def __init__(self, device):
         self._device = device
@@ -152,7 +153,7 @@ class ElkBridge(object):
         return processors
 
     def register_callbacks(self):
-        for path, unused in SENSEI_ENCODER_MAP.items():
+        for path, unused in SENSEI_POT_MAP.items():
             self._server.add_method(path, 'f', self._handle_knobs)
 
         for path, unused in GUI_PARAMETER_MAP.items():
@@ -189,7 +190,7 @@ class ElkBridge(object):
     # Callback for knobs
     def _handle_knobs(self, path, args):
         value = args[0]
-        data = SENSEI_ENCODER_MAP[path]
+        data = SENSEI_POT_MAP[path]
         parameter = data[1]
         # Due to noise in pots, add some hysteresis
         if (abs(self._analog_values[parameter] - value) > ANALOG_SENSORS_MIN_ABS_DIFF):
