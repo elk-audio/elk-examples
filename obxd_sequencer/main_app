@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+'''main_app : main app example for adc sequencer '''
+
+__copyright__   = 'Copyright (C) 2019 MIND Music Labs'
+
+import sys
+import os
+import time
+import math
+import liblo
+from collections import defaultdict
+
+from elkpy import sushicontroller as sc
+from elkpy import sushiprocessor as sp
+import state_machine as sm
+
+from demo_opts import get_device
+from luma.core.render import canvas
+from luma.core.device import dummy
+from PIL import ImageFont
+
+###############
+#  Constants  #
+###############
+
+SUSHI_ADDRESS = ('localhost:51051')
+
+SENSEI_TO_BRIDGE_OSC_PORT = 23023
+BRIDGE_TO_SENSEI_PORT = 23024
+
+SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
+
+# Sensor input path : (tuple of (processor, parameter, display_block_id)
+SENSEI_POT_MAP = {
+    '/sensors/analog/fader_A' :   0,
+    '/sensors/analog/fader_B' :   1,
+    '/sensors/analog/fader_C' :   2,
+}
+
+SENSEI_ENCODER_MAP = {
+    '/sensors/analog/rot_enc' :   ( 'unused', 'unused', 0),
+}
+
+SENSEI_BUTTONS_MAP = {
+    '/sensors/digital/button_0' : 9,
+    '/sensors/digital/button_1' : 0,
+    '/sensors/digital/button_2' : 1,
+    '/sensors/digital/button_3' : 2,
+    '/sensors/digital/button_4' : 3,
+    '/sensors/digital/button_5' : 4,
+    '/sensors/digital/button_6' : 5,
+    '/sensors/digital/button_7' : 6,
+    '/sensors/digital/button_8' : 7,
+    '/sensors/digital/rot_enc_button' : 10,
+}
+
+SUSHI_PLAYHEAD_MAP = {
+    '/parameter/sequencer_obxd/step_ind_0' : 1,
+    '/parameter/sequencer_obxd/step_ind_1' : 2,
+    '/parameter/sequencer_obxd/step_ind_2' : 3,
+    '/parameter/sequencer_obxd/step_ind_3' : 4,
+    '/parameter/sequencer_obxd/step_ind_4' : 5,
+    '/parameter/sequencer_obxd/step_ind_5' : 6,
+    '/parameter/sequencer_obxd/step_ind_6' : 7,
+    '/parameter/sequencer_obxd/step_ind_7' : 8,
+}
+
+SUSHI_PROCESSORS = ['main','sequencer_obxd','obxd','reverb','second','sequencer_piano','gm_midi','piano_gain','delay']
+
+SUSHI_STARTUP_MESSAGES = [
+    ('main', 'gain', -5),
+    ('second', 'gain', -7),
+]
+
+ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
+
+REFRESH_INTERVAL = 0.05
+DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
+RESET_PIN_INDEX = 31
+
+
+# Get protofile to generate grpc library
+proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+if proto_file is None:
+    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+    sys.exit(-1)
+
+#########################
+#  Module functions
+#########################
+
+# Set the value of an led on the board
+def set_led_output(sensor_idx, enabled):
+    osc_msg = liblo.Message('/set_output')
+    osc_msg.add(('i', sensor_idx))
+    osc_msg.add(('i', int(enabled)))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+
+def reset_display():
+    osc_msg = liblo.Message('/set_output')
+    osc_msg.add(('i', RESET_PIN_INDEX))
+    osc_msg.add(('i', 0))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+    time.sleep(REFRESH_INTERVAL)
+    osc_msg = liblo.Message('/set_output')
+    osc_msg.add(('i', RESET_PIN_INDEX))
+    osc_msg.add(('i', 1))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+
+################
+#  Classes     #
+################
+
+# Simple class to manage drawing 4 parameter values on a 128 x 32 px oled display
+class Display(object):
+    def __init__(self, device):
+        self._device = device
+        self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 10)
+        self._text = [""]
+        self._mode = "plugin"
+        self._step = 0
+        self._dirty = False
+
+    def set_dirty(self,text,mode,step_idx=-1):
+        self._text = text
+        self._mode = mode
+        if step_idx != -1:
+            self._step = step_idx
+        if self._mode == "plugin":
+            self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 10)
+        elif self._mode == "sequencer":
+            self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 12)
+        self._dirty = True
+
+    def draw(self):
+        if not self._dirty:
+            return
+        with canvas(self._device) as draw:
+            if self._mode == "plugin":
+                draw.text((0,0), self._text[0], font=self._fnt, fill=255)
+                draw.text((0,11), self._text[1], font=self._fnt, fill=255)
+                draw.text((0,22), self._text[2], font=self._fnt, fill=255)
+            if self._mode == "sequencer":
+                draw.text((1,1), self._text[self._step], font=self._fnt, fill=255)
+            self._dirty = False
+
+
+# Bridge/Glue object that manages duplex communication between Sushi and the controlling interface (which
+# could be a hw controller, Open stage control, TouchOSC or similar) And encapsulates simple logic
+# around programs, state leds and similiar.
+class ElkBridge(object):
+    def __init__(self, display_device, state_machine):
+        self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
+        self._sushi = sc.SushiController(SUSHI_ADDRESS, proto_file)
+        self._processors = self._create_processors(SUSHI_PROCESSORS)
+        self._values = defaultdict(float)
+        self._analog_values = defaultdict(float)
+        self._buttons = [False] * 9
+        self._display = display_device
+        self._state_machine = state_machine
+        self._active_button = 0
+
+        self.register_callbacks()
+        self._send_initial_sushi_configuration()
+
+    def _create_processors(self, list_of_processors):
+        processors = {}
+        for processor in list_of_processors:
+            processors[processor] = sp.SushiProcessor(processor,self._sushi)
+        return processors
+
+    def register_callbacks(self):
+        for path, unused in SENSEI_POT_MAP.items():
+            self._server.add_method(path, 'f', self._handle_knobs)
+
+        for path, unused in (SENSEI_BUTTONS_MAP).items():
+            self._server.add_method(path, 'f', self._handle_buttons)
+
+        for path, unused in (SENSEI_ENCODER_MAP).items():
+            self._server.add_method(path, 'f', self._handle_encoder)
+
+        for path, unused in (SUSHI_PLAYHEAD_MAP).items():
+            self._server.add_method(path, 'f', self._handle_playhead)
+
+        self._server.add_method(None, None, self._unhandled_msg_callback)
+
+    def _unhandled_msg_callback(self, path, args, types, src):
+        pass
+        # print('Unknown message %s from %s' % (path, src.url))
+
+    def start(self):
+        self._server.start()
+        self._processors["obxd"].set_parameter_value("VoiceCount", 6/8)
+        self._processors["obxd"].set_parameter_value("Cutoff", 0.5)
+        self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
+        self._sushi.set_tempo(200)
+        # Stranger Things
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_0",-4.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_1",0.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_2",3.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_3",7.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_4",8.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_5",7.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_6",3.0)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_7",0.0)
+        # Turn off
+        self._processors["sequencer_piano"].set_parameter_value("step_0",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_1",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_2",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_3",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_4",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_5",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_6",0.0)
+        self._processors["sequencer_piano"].set_parameter_value("step_7",0.0)
+        set_led_output(10, True)
+        set_led_output(11, True)
+        set_led_output(12, True)
+        set_led_output(13, True)
+
+    
+    def refresh_knobs(self):
+        for parameter in self._processors[self._state_machine.get_active_sequencer()].get_parameters():
+            value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value(parameter)
+            if "step_" in parameter and "ind" not in parameter:
+                step = int(parameter.strip("step_"))
+                self._state_machine.set_sequencer_enabled(step, value)
+                self._buttons[step+1] = value
+            elif "pitch" in parameter:
+                step = int(parameter.strip("pitch_"))
+                self._state_machine.set_sequencer_pitch(step, value)
+
+        for data in self._state_machine.get_map():
+            processor = data[0]
+            parameter = data[1]
+            if parameter == "pgm":
+                value = self._processors[processor].get_programs().index(self._processors[processor].get_program()) % 10
+            elif parameter == "bnk":
+                value = int(self._processors[processor].get_programs().index(self._processors[processor].get_program()) / 10)
+            else: 
+                value = self._processors[processor].get_parameter_value(parameter)
+
+            if self._state_machine.get_parameter(parameter) != value:
+                self._state_machine.set_parameter(parameter, value)
+                # self._values[parameter] = value
+        
+        self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
+
+    def refresh_leds(self):
+        for i,button in enumerate(self._buttons):
+            set_led_output(i+1,button)
+
+    def _send_initial_sushi_configuration(self):
+        for data in SUSHI_STARTUP_MESSAGES:
+            self._processors[data[0]].set_parameter_value(data[1], data[2])
+
+    # Callback for knobs
+    def _handle_knobs(self, path, args):
+        value = args[0]
+        data = (self._state_machine.get_plugin(SENSEI_POT_MAP[path]), 
+                self._state_machine.get_page_parameters(SENSEI_POT_MAP[path]),
+                self._state_machine.get_knob_name(SENSEI_POT_MAP[path]))
+        knob = SENSEI_POT_MAP[path]
+        # Due to noise in pots, add some hysteresis
+        if (abs(self._analog_values[knob] - value) > ANALOG_SENSORS_MIN_ABS_DIFF):
+            if data[1][0]["name"] == "bnk":
+                pgm = self._processors[data[0]].get_programs().index(self._processors[data[0]].get_program()) % 10
+                self._processors[data[0]].set_program(self._processors[data[0]].get_programs()[int(value*12)*10 + pgm])
+            elif data[1][0]["name"] == "pgm":
+                bnk = int(self._processors[data[0]].get_programs().index(self._processors[data[0]].get_program()) / 10)
+                self._processors[data[0]].set_program(self._processors[data[0]].get_programs()[bnk*10 + int(value*9)])
+            else: 
+                self._handle_value_change(data, value)
+            self._analog_values[knob] = value
+            # self._state_machine.set_parameter_from_page(SENSEI_POT_MAP[path], value)
+
+    def _handle_value_change(self, data, value):
+        processor = data[0]
+        parameters = data[1]
+        for parameter in parameters:
+            if parameter != 'unused':
+                if parameter["name"] == "gain":
+                    OldMin = 0.0
+                    OldMax = 1.0
+                    NewMin = -96
+                    NewMax = 0.0
+                    OldRange = (OldMax - OldMin)  
+                    NewRange = (NewMax - NewMin)  
+                    value = (((value - OldMin) * NewRange) / OldRange) + NewMin
+                self._processors[processor].set_parameter_value(parameter["name"], value)
+                # self._values[parameter["name"]] = value
+                self._state_machine.set_parameter(parameter["name"], value)
+        self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
+
+    # Callback for enabled/disabled buttons. Only turns leds on / off
+    def _handle_buttons(self, path, args):
+        if (args[0] > 0.5):
+            if SENSEI_BUTTONS_MAP[path] == 10:
+                if self._state_machine.get_mode() == "plugin":
+                    self._state_machine.cycle_active_plugin()
+                    self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
+                if self._state_machine.get_mode() == "sequencer":
+                    value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value("step_" + str(self._active_button))
+                    self._buttons[self._active_button+1] = value
+                    self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("step_" + str(self._active_button), float(not value))
+            elif SENSEI_BUTTONS_MAP[path] == 9:
+                if self._sushi.get_playing_mode() == 1:
+                    self._sushi.set_playing_mode(2)
+                    self._buttons[0] = 1
+                else:
+                    self._sushi.set_playing_mode(1)
+                    self._buttons[0] = 0
+                    for i in range(128):
+                        for track in self._sushi.get_tracks():
+                            self._sushi.send_note_off(track.id,0,i,0)
+            else:
+                target = SENSEI_BUTTONS_MAP[path]
+                self._state_machine.set_mode("sequencer")
+                self._active_button = target
+                self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode(), target)
+                #self._buttons[target] = not self._buttons[target]
+                #set_led_output(SENSEI_BUTTONS_MAP[path], self._buttons[target])
+        elif SENSEI_BUTTONS_MAP[path] != 10 and SENSEI_BUTTONS_MAP[path] != 9:
+            self._state_machine.set_mode("plugin")
+
+    # Callbac for encoder rotation
+    def _handle_encoder(self, path, args):
+        value = args[0]
+        if value != self._values["encoder"]:
+            direction = int(math.copysign(1, (value-self._values["encoder"])))
+            
+            if self._state_machine.get_mode() == "sequencer":
+                current_value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value("pitch_" + str(self._active_button))
+                self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("pitch_" + str(self._active_button), current_value + direction)
+            else:
+                self._state_machine.cycle_parameter_page(direction)
+                self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
+            
+            self._values["encoder"] = value
+
+    def _handle_playhead(self, path, args):
+        set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, args[0])
+
+
+
+
+if __name__ == '__main__':
+    state_machine = sm.StateMachine()
+    #display = Display(dummy())
+    reset_display()
+    display = Display(get_device(DISPLAY_CONFIG))
+    rack_bridge = ElkBridge(display, state_machine)
+    rack_bridge.start()
+
+    while True:
+        rack_bridge.refresh_knobs()
+        rack_bridge.refresh_leds()
+        display.draw()
+        time.sleep(REFRESH_INTERVAL)

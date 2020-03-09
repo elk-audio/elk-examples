@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start Elk Sequencer example
+
+sushi -r -c sushi_config.json &
+
+sensei -f sensei_config.json &
+
+./main_app &
+
+sleep 3
+
+aconnect 16 128
+
+
