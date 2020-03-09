@@ -1,0 +1,6 @@
+[2020-03-09 12:58:56.217] [error] [eventhandler] Invalid range for command: Set Input Scale Range, sensor: 23
+[2020-03-09 12:58:56.671] [warning] [gpio_hw_frontend] Received bad ack from cmd 100, status: GPIO_INVALID_COMMAND_FOR_CONTROLLER
+[2020-03-09 12:59:42.274] [error] [eventhandler] Invalid range for command: Set Input Scale Range, sensor: 23
+[2020-03-09 12:59:42.734] [warning] [gpio_hw_frontend] Received bad ack from cmd 100, status: GPIO_INVALID_COMMAND_FOR_CONTROLLER
+[2020-03-09 13:02:12.162] [error] [eventhandler] Invalid range for command: Set Input Scale Range, sensor: 23
+[2020-03-09 13:02:12.611] [warning] [gpio_hw_frontend] Received bad ack from cmd 100, status: GPIO_INVALID_COMMAND_FOR_CONTROLLER

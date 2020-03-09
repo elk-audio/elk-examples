@@ -15,9 +15,9 @@
             ],
             "plugins" : [
                 {
-                    "path" : "/udata/adc_workshop_files/elk_juce_example/elk_juce_example.so",
+                    "path" : "/udata/elk-examples/plugins/elk_juce_example.so",
                     "name" : "elk_juce_example",
-                    "type"   : "vst2x"
+                    "type" : "vst2x"
                 }
             ]
         }

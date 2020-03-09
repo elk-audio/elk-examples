@@ -1,0 +1,8 @@
+[2020-03-09 12:50:12.977] [error] [eventhandler] Invalid range for command: Set Input Scale Range, sensor: 23
+[2020-03-09 12:50:13.435] [warning] [gpio_hw_frontend] Received bad ack from cmd 100, status: GPIO_INVALID_COMMAND_FOR_CONTROLLER
+[2020-03-09 12:52:30.193] [error] [Shiftreg Gpio] Failed to open driver. Error -1
+[2020-03-09 12:52:30.193] [error] [Shiftreg Gpio] Failed to init driver
+[2020-03-09 12:52:30.193] [error] [eventhandler] Failed to initialize hw backend
+[2020-03-09 12:55:01.470] [error] [Shiftreg Gpio] Failed to open driver. Error -1
+[2020-03-09 12:55:01.470] [error] [Shiftreg Gpio] Failed to init driver
+[2020-03-09 12:55:01.470] [error] [eventhandler] Failed to initialize hw backend

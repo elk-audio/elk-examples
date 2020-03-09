@@ -119,157 +119,51 @@
     {
       "id" : 10,
       "enabled": true,
-      "name" : "button_0",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
+      "name" : "led_fader_A",
+      "sensor_type" : "digital_output",
       "hardware" :
       {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [7],
-        "delta_ticks" : 1
+        "hardware_type" : "digital_output_pin",
+        "pins" : [9]
       }
     },
     {
       "id" : 11,
       "enabled": true,
-      "name" : "button_1",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
+      "name" : "led_fader_B",
+      "sensor_type" : "digital_output",
       "hardware" :
       {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [6],
-        "delta_ticks" : 1
+        "hardware_type" : "digital_output_pin",
+        "pins" : [10]
       }
     },
     {
       "id" : 12,
       "enabled": true,
-      "name" : "button_2",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
+      "name" : "led_fader_C",
+      "sensor_type" : "digital_output",
       "hardware" :
       {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [5],
-        "delta_ticks" : 1
+        "hardware_type" : "digital_output_pin",
+        "pins" : [11]
       }
     },
     {
       "id" : 13,
       "enabled": true,
-      "name" : "button_3",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
+      "name" : "led_fader_D",
+      "sensor_type" : "digital_output",
       "hardware" :
       {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [4],
-        "delta_ticks" : 1
+        "hardware_type" : "digital_output_pin",
+        "pins" : [12]
       }
     },
     {
       "id" : 14,
       "enabled": true,
-      "name" : "button_4",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
-      "hardware" :
-      {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [3],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 15,
-      "enabled": true,
-      "name" : "button_5",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
-      "hardware" :
-      {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [2],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 16,
-      "enabled": true,
-      "name" : "button_6",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
-      "hardware" :
-      {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [1],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 17,
-      "enabled": true,
-      "name" : "button_7",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
-      "hardware" :
-      {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [8],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 18,
-      "enabled": true,
-      "name" : "button_8",
-      "sensor_type" : "digital_input",
-      "inverted" : "true",
-      "mode" : "on_value_changed",
-      "hardware" :
-      {
-        "hardware_type" : "digital_input_pin",
-        "polarity" : "active_low",
-        "pins" : [0],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 19,
-      "enabled": true,
-      "name" : "rot_enc",
-      "sensor_type" : "analog_input",
-      "mode" : "on_value_changed",
-      "range" : [0, 15],
-      "hardware" :
-      {
-        "hardware_type" : "encoder",
-        "polarity" : "active_low",
-        "pins" : [9, 10],
-        "delta_ticks" : 1
-      }
-    },
-    {
-      "id" : 20,
-      "enabled": true,
-      "name" : "rot_enc_button",
+      "name" : "button_0",
       "sensor_type" : "digital_input",
       "inverted" : "true",
       "mode" : "on_value_changed",
@@ -282,7 +176,157 @@
       }
     },
     {
+      "id" : 15,
+      "enabled": true,
+      "name" : "button_1",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [10],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 16,
+      "enabled": true,
+      "name" : "button_2",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [6],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 17,
+      "enabled": true,
+      "name" : "button_3",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [5],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 18,
+      "enabled": true,
+      "name" : "button_4",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [4],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 19,
+      "enabled": true,
+      "name" : "button_5",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [3],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 20,
+      "enabled": true,
+      "name" : "button_6",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [2],
+        "delta_ticks" : 1
+      }
+    },
+    {
       "id" : 21,
+      "enabled": true,
+      "name" : "button_7",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [0],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 22,
+      "enabled": true,
+      "name" : "button_8",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [1],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 23,
+      "enabled": true,
+      "name" : "rot_enc",
+      "sensor_type" : "analog_input",
+      "mode" : "on_value_changed",
+      "range" : [-256, 256],
+      "hardware" :
+      {
+        "hardware_type" : "encoder",
+        "polarity" : "active_low",
+        "pins" : [9, 8],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 24,
+      "enabled": true,
+      "name" : "rot_enc_button",
+      "sensor_type" : "digital_input",
+      "inverted" : "true",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "digital_input_pin",
+        "polarity" : "active_low",
+        "pins" : [7],
+        "delta_ticks" : 1
+      }
+    },
+    {
+      "id" : 25,
       "enabled": true,
       "name" : "pot_A",
       "sensor_type" : "analog_input",
@@ -297,9 +341,9 @@
       }
     },
     {
-      "id" : 22,
+      "id" : 26,
       "enabled": true,
-      "name" : "pot_B",
+      "name" : "fader_A",
       "sensor_type" : "analog_input",
       "mode" : "on_value_changed",
       "hardware" :
@@ -312,9 +356,24 @@
       }
     },
     {
-      "id" : 23,
+      "id" : 28,
       "enabled": true,
-      "name" : "pot_C",
+      "name" : "fader_B",
+      "sensor_type" : "analog_input",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "analog_input_pin",
+        "pins" : [3],
+        "delta_ticks" : 1,
+        "adc_resolution" : 8,
+        "filter_time_constant" : 0.01
+      }
+    },
+    {
+      "id" : 29,
+      "enabled": true,
+      "name" : "fader_C",
       "sensor_type" : "analog_input",
       "mode" : "on_value_changed",
       "hardware" :
@@ -324,6 +383,32 @@
         "delta_ticks" : 1,
         "adc_resolution" : 8,
         "filter_time_constant" : 0.01
+      }
+    },
+    {
+      "id" : 30,
+      "enabled": true,
+      "name" : "fader_D",
+      "sensor_type" : "analog_input",
+      "mode" : "on_value_changed",
+      "hardware" :
+      {
+        "hardware_type" : "analog_input_pin",
+        "pins" : [4],
+        "delta_ticks" : 1,
+        "adc_resolution" : 8,
+        "filter_time_constant" : 0.01
+      }
+    },
+    {
+      "id" : 31,
+      "enabled": true,
+      "name" : "display_reset",
+      "sensor_type" : "digital_output",
+      "hardware" :
+      {
+        "hardware_type" : "digital_output_pin",
+        "pins" : [30]
       }
     }
   ]
