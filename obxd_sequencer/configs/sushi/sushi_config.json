@@ -72,13 +72,13 @@
                 "port": 0,
                 "channel": "all",
                 "track": "main",
-                "raw_midi": true
+                "raw_midi": false
             },
             {
                 "port": 0,
                 "channel": "all",
                 "track": "second",
-                "raw_midi": true
+                "raw_midi": false
             }
         ],
         "cc_mappings": [

@@ -28,7 +28,7 @@
                 "port": 0,
                 "channel": "all",
                 "track": "main",
-                "raw_midi": true
+                "raw_midi": false
             }
         ]
     }

@@ -1,6 +1,6 @@
 # elk-examples
 
-For the example projects that complement elk-docs and the Development Kit release.
+For the example projects that complement the online [elk-docs](https://elk-audio.github.io/elk-docs/html/index.html), and the Development Kit release.
 
 The binary files needed for them can be downloaded from the [repository's Releases section](https://github.com/elk-audio/elk-examples/releases/).
 
