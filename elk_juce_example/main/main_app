@@ -31,7 +31,7 @@ SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
 GUI_APP_ADDRESS = ('192.168.0.155', BRIDGE_TO_GUI_PORT)
 
 # Sensor input path : (tuple of (processor, parameter, display_block_id)
-SENSEI_POT_MAP = {
+SENSEI_FADER_MAP = {
     '/sensors/analog/fader_A' :   ( 'elk_juce_example', 'Cutoff', 0),
     '/sensors/analog/fader_B' :   ( 'elk_juce_example', 'Resonance', 1),
     '/sensors/analog/fader_C' :   ( 'elk_juce_example', 'Room Size', 2),
@@ -68,20 +68,20 @@ GUI_PATHS = {
 SUSHI_PROCESSORS = ['main','elk_juce_example']
 
 SUSHI_STARTUP_MESSAGES = [
-    ('main', 'gain', -10)
+    ('main', 'gain', 0.8)
 ]
 
 ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
 
 REFRESH_INTERVAL = 0.05
-DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "32"]
+DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
+RESET_PIN_INDEX = 31
 
-
-# Get protofile to generate grpc library
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
-    sys.exit(-1)
+# # Get protofile to generate grpc library
+# proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+# if proto_file is None:
+#     print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+#     sys.exit(-1)
 
 #########################
 #  Module functions
@@ -100,12 +100,22 @@ def set_gui_output(parameter, value):
     osc_msg.add(('f', float(value)))
     liblo.send(GUI_APP_ADDRESS, osc_msg)
 
+def reset_display():
+    osc_msg = liblo.Message('/set_output')
+    osc_msg.add(('i', RESET_PIN_INDEX))
+    osc_msg.add(('i', 0))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
+    time.sleep(REFRESH_INTERVAL)
+    osc_msg = liblo.Message('/set_output')
+    osc_msg.add(('i', RESET_PIN_INDEX))
+    osc_msg.add(('i', 1))
+    liblo.send(SENSEI_ADDRESS, osc_msg)
 
 ################
 #  Classes     #
 ################
 
-# Simple class to manage drawing 4 parameter values on an 128 x 32 px oled display
+# Simple class to manage drawing 4 parameter values on an 128 x 64 px oled display
 class Display(object):
     def __init__(self, device):
         self._device = device
@@ -119,13 +129,18 @@ class Display(object):
     def draw(self):
         if not self._dirty:
             return
+        
         # Draw 4 blocks representing 4 parameter values
+        
+        height = 64
+        width = 32
+
         with canvas(self._device) as draw:
-            draw.rectangle([0,0, 128, 32], 0)
+            draw.rectangle([0,0, 128, height], 0)
             for i, val in enumerate(self._blocks):
-                x = i * 32
-                y = 32 - int(round(val * 32))
-                draw.rectangle([x, y, x + 32, 32], 1)
+                x = i * width
+                y = height - int(round(val * height))
+                draw.rectangle([x, y, x + width, height], 1)
                 
             self._dirty = False
 
@@ -134,14 +149,15 @@ class Display(object):
 # could be a hw controller, Open stage control, TouchOSC or similar) And encapsulates simple logic
 # around programs, state leds and similiar.
 class ElkBridge(object):
-    def __init__(self, display_device):
+    def __init__(self, display_device):        
         self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
-        self._sushi = sc.SushiController(SUSHI_ADDRESS, proto_file)
+        self._sushi = sc.SushiController(SUSHI_ADDRESS)
         self._processors = self._create_processors(SUSHI_PROCESSORS)
         self._values = defaultdict(float)
         self._analog_values = defaultdict(float)
-        self._buttons = [False] * 10
+        self._buttons = [False] * 9
         self._display = display_device
+        self._active_button = 0
 
         self.register_callbacks()
         self._send_initial_sushi_configuration()
@@ -153,8 +169,8 @@ class ElkBridge(object):
         return processors
 
     def register_callbacks(self):
-        for path, unused in SENSEI_POT_MAP.items():
-            self._server.add_method(path, 'f', self._handle_knobs)
+        for path, unused in SENSEI_FADER_MAP.items():
+            self._server.add_method(path, 'f', self._handle_faders)
 
         for path, unused in GUI_PARAMETER_MAP.items():
             self._server.add_method(path, 'f', self._handle_gui_updates)
@@ -187,12 +203,12 @@ class ElkBridge(object):
         for data in SUSHI_STARTUP_MESSAGES:
             self._processors[data[0]].set_parameter_value(data[1], data[2])
 
-    # Callback for knobs
-    def _handle_knobs(self, path, args):
+    # Callback for faders
+    def _handle_faders(self, path, args):
         value = args[0]
-        data = SENSEI_POT_MAP[path]
+        data = SENSEI_FADER_MAP[path]
         parameter = data[1]
-        # Due to noise in pots, add some hysteresis
+        # Due to noise in faders, add some hysteresis
         if (abs(self._analog_values[parameter] - value) > ANALOG_SENSORS_MIN_ABS_DIFF):
             self._analog_values[parameter] = value
             self._handle_value_change(data, value)
@@ -221,6 +237,7 @@ class ElkBridge(object):
 
 
 if __name__ == '__main__':
+    reset_display()
     display = Display(get_device(DISPLAY_CONFIG))
     rack_bridge = ElkBridge(display)
     rack_bridge.start()

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Stop Elk JUCE example
 
-pkill ./elk_juce_example_main_app
+pkill main_app
 
 pkill sensei
 

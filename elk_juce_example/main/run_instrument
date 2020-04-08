@@ -1,9 +1,9 @@
 #!/bin/bash
 # Start Elk JUCE example
 
-sushi -r -c ../configs/sushi/elk_sushi_conf.json &
+sushi -r -c ../configs/sushi/sushi_config.json &
 
-sensei -f ../configs/sensei/elk_sensei_conf.json &
+sensei -f ../configs/sensei/sensei_config.json &
 
 ./main_app &
 
