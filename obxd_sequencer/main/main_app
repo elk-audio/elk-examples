@@ -68,8 +68,8 @@ SUSHI_PLAYHEAD_MAP = {
 SUSHI_PROCESSORS = ['main','sequencer_obxd','obxd','reverb','second','sequencer_piano','gm_midi','piano_gain','delay']
 
 SUSHI_STARTUP_MESSAGES = [
-    ('main', 'gain', -5),
-    ('second', 'gain', -7),
+    # ('main', 'gain', -5),
+    # ('second', 'gain', -7),
 ]
 
 ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
@@ -80,10 +80,10 @@ RESET_PIN_INDEX = 31
 
 
 # Get protofile to generate grpc library
-proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-if proto_file is None:
-    print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
-    sys.exit(-1)
+# proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
+# if proto_file is None:
+#     print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
+#     sys.exit(-1)
 
 #########################
 #  Module functions
@@ -115,7 +115,7 @@ def reset_display():
 class Display(object):
     def __init__(self, device):
         self._device = device
-        self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 10)
+        self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 10)
         self._text = [""]
         self._mode = "plugin"
         self._step = 0
@@ -127,9 +127,9 @@ class Display(object):
         if step_idx != -1:
             self._step = step_idx
         if self._mode == "plugin":
-            self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 10)
+            self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 10)
         elif self._mode == "sequencer":
-            self._fnt = ImageFont.truetype('./LiberationMono-Regular.ttf', 12)
+            self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 12)
         self._dirty = True
 
     def draw(self):
@@ -151,7 +151,7 @@ class Display(object):
 class ElkBridge(object):
     def __init__(self, display_device, state_machine):
         self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
-        self._sushi = sc.SushiController(SUSHI_ADDRESS, proto_file)
+        self._sushi = sc.SushiController(SUSHI_ADDRESS)
         self._processors = self._create_processors(SUSHI_PROCESSORS)
         self._values = defaultdict(float)
         self._analog_values = defaultdict(float)

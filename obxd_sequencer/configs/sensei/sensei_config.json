@@ -301,7 +301,7 @@
         "name" : "rot_enc",
         "sensor_type" : "analog_input",
         "mode" : "on_value_changed",
-        "range" : [-256, 256],
+        "range" : [0, 10000],
         "hardware" :
         {
           "hardware_type" : "encoder",
@@ -403,7 +403,7 @@
       {
         "id" : 31,
         "enabled": true,
-        "name" : "display_reset",
+        "name" : "oled_reset",
         "sensor_type" : "digital_output",
         "hardware" :
         {

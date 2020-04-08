@@ -1,8 +1,0 @@
-#!/bin/bash
-# Stop Elk Sequencer Example
-
-pkill ./main_app
-
-pkill sensei
-
-pkill sushi
