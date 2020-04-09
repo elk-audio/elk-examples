@@ -1,0 +1,416 @@
+{
+    "backends" : [
+      {
+        "id" : 0,
+        "enabled": true,
+        "raw_input_enabled": false,
+        "type" : "osc",
+        "host" : "localhost",
+        "port" : 23023,
+        "base_path" : "/sensors",
+        "base_raw_input_path" : "/raw_input"
+      }
+    ],
+  
+      "hw_frontend" : {
+        "type" : "elk_pi"
+      },
+  
+    "sensors" : [
+      {
+        "id" : 1,
+        "enabled": true,
+        "name" : "led_0",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [8]
+        }
+      },
+      {
+        "id" : 2,
+        "enabled": true,
+        "name" : "led_1",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [7]
+        }
+      },
+      {
+        "id" : 3,
+        "enabled": true,
+        "name" : "led_2",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [6]
+        }
+      },
+      {
+        "id" : 4,
+        "enabled": true,
+        "name" : "led_3",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [5]
+        }
+      },
+      {
+        "id" : 5,
+        "enabled": true,
+        "name" : "led_4",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [4]
+        }
+      },
+      {
+        "id" : 6,
+        "enabled": true,
+        "name" : "led_5",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [3]
+        }
+      },
+      {
+        "id" : 7,
+        "enabled": true,
+        "name" : "led_6",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [2]
+        }
+      },
+      {
+        "id" : 8,
+        "enabled": true,
+        "name" : "led_7",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [1]
+        }
+      },
+      {
+        "id" : 9,
+        "enabled": true,
+        "name" : "led_8",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [0]
+        }
+      },
+      {
+        "id" : 10,
+        "enabled": true,
+        "name" : "led_fader_0",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [9]
+        }
+      },
+      {
+        "id" : 11,
+        "enabled": true,
+        "name" : "led_fader_1",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [10]
+        }
+      },
+      {
+        "id" : 12,
+        "enabled": true,
+        "name" : "led_fader_2",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [11]
+        }
+      },
+      {
+        "id" : 13,
+        "enabled": true,
+        "name" : "led_fader_3",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [12]
+        }
+      },
+      {
+        "id" : 14,
+        "enabled": true,
+        "name" : "button_0",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [11],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 15,
+        "enabled": true,
+        "name" : "button_1",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [10],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 16,
+        "enabled": true,
+        "name" : "button_2",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [6],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 17,
+        "enabled": true,
+        "name" : "button_3",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [5],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 18,
+        "enabled": true,
+        "name" : "button_4",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [4],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 19,
+        "enabled": true,
+        "name" : "button_5",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [3],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 20,
+        "enabled": true,
+        "name" : "button_6",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [2],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 21,
+        "enabled": true,
+        "name" : "button_7",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [0],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 22,
+        "enabled": true,
+        "name" : "button_8",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [1],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 23,
+        "enabled": true,
+        "name" : "rot_enc",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "range" : [0, 10000],
+        "hardware" :
+        {
+          "hardware_type" : "encoder",
+          "polarity" : "active_low",
+          "pins" : [9, 8],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 24,
+        "enabled": true,
+        "name" : "rot_enc_button",
+        "sensor_type" : "digital_input",
+        "inverted" : "true",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "digital_input_pin",
+          "polarity" : "active_low",
+          "pins" : [7],
+          "delta_ticks" : 1
+        }
+      },
+      {
+        "id" : 25,
+        "enabled": true,
+        "name" : "pot_A",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "analog_input_pin",
+          "pins" : [0],
+          "delta_ticks" : 1,
+          "adc_resolution" : 8,
+          "filter_time_constant" : 0.005
+        }
+      },
+      {
+        "id" : 26,
+        "enabled": true,
+        "name" : "fader_0",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "analog_input_pin",
+          "pins" : [1],
+          "delta_ticks" : 1,
+          "adc_resolution" : 8,
+          "filter_time_constant" : 0.005
+        }
+      },
+      {
+        "id" : 28,
+        "enabled": true,
+        "name" : "fader_1",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "analog_input_pin",
+          "pins" : [3],
+          "delta_ticks" : 1,
+          "adc_resolution" : 8,
+          "filter_time_constant" : 0.01
+        }
+      },
+      {
+        "id" : 29,
+        "enabled": true,
+        "name" : "fader_2",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "analog_input_pin",
+          "pins" : [2],
+          "delta_ticks" : 1,
+          "adc_resolution" : 8,
+          "filter_time_constant" : 0.01
+        }
+      },
+      {
+        "id" : 30,
+        "enabled": true,
+        "name" : "fader_3",
+        "sensor_type" : "analog_input",
+        "mode" : "on_value_changed",
+        "hardware" :
+        {
+          "hardware_type" : "analog_input_pin",
+          "pins" : [4],
+          "delta_ticks" : 1,
+          "adc_resolution" : 8,
+          "filter_time_constant" : 0.01
+        }
+      },
+      {
+        "id" : 31,
+        "enabled": true,
+        "name" : "oled_reset",
+        "sensor_type" : "digital_output",
+        "hardware" :
+        {
+          "hardware_type" : "digital_output_pin",
+          "pins" : [30]
+        }
+      }
+    ]
+  }
+  
