@@ -95,7 +95,7 @@ class ElkBridge(object):
         if hasattr(proc_info, 'input_channels'):
             header_line = "Track: %s" % proc_info.name[:14]
         else:
-            header_line = "Plug: {0:^11} {1:1}/{2:1}".format(
+            header_line = "Plug: {0:^9} {1:2}/{2:2}".format(
                     proc_info.name[:11],
                     self._active_param_page+1,
                     self._n_pages()
@@ -103,13 +103,19 @@ class ElkBridge(object):
         param_names = [""] * N_FADERS
         param_vals = [0.0] * N_FADERS
         first_param_idx = int(self._active_param_page * N_FADERS)
-        params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+3]
+        nparams = 4
+        params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+nparams]
         for n, param in enumerate(params_in_page):
-            param_names[n] = param.name[:6]
+            param_names[n] = param.name[:10]
             param_vals[n] = self._sushi.get_parameter_value(proc_info.id, param.id)
-        param_line = "{0:^6} {1:^6} {2:^7}".format(*param_names)
-        value_line = "{0:^6.2f} {1:^6.2f} {2:^7.2f}".format(*param_vals)
-        self._ui.set_display_lines([header_line, param_line, value_line])
+        
+        param_line1 = "{0:^10} {1:^10}".format(*param_names)
+        value_line1 = "{0:^10.2f} {1:^10.2f}".format(*param_vals)
+        
+        param_line2 = "{2:^10} {3:^10}".format(*param_names)
+        value_line2 = "{2:^10.2f} {3:^10.2f}".format(*param_vals)
+        
+        self._ui.set_display_lines([header_line, param_line1, value_line1, param_line2, value_line2])
 
 
     def _n_pages(self):

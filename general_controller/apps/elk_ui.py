@@ -42,7 +42,7 @@ RESET_PIN_INDEX = 31
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 FONT_PATH = MODULE_PATH + "/LiberationMono-Regular.ttf"
 FONT_SIZE = 10
-DISPLAY_N_LINES = 5
+DISPLAY_N_LINES = 6
 DISPLAY_LINE_LENGTH = 21
 
 ####################
@@ -126,7 +126,7 @@ class ElkUIController(object):
         """ Write lines of text to the OLED display.
 
             Input:
-                lines: list of up to 3 strings that will be displayed in separate rows.
+                lines: list of up to DISPLAY_N_LINES strings that will be displayed in separate rows.
                        Max length for each string is 21 characters.
         """
         self._display_lines = []
