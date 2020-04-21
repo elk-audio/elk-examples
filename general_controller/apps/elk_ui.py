@@ -8,7 +8,7 @@ __license__ = "GPL-3.0"
 
 import math
 import time
-
+import os.path
 import liblo
 
 from demo_opts import get_device as get_display_device
@@ -39,9 +39,10 @@ ROT_ENC_PATH = "/sensors/analog/rot_enc"
 # OLED display
 DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
 RESET_PIN_INDEX = 31
-FONT_PATH = "LiberationMono-Regular.ttf"
+MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
+FONT_PATH = MODULE_PATH + "/LiberationMono-Regular.ttf"
 FONT_SIZE = 10
-DISPLAY_N_LINES = 3
+DISPLAY_N_LINES = 5
 DISPLAY_LINE_LENGTH = 21
 
 ####################
@@ -60,7 +61,7 @@ class ElkUIController(object):
     """
 
     def __init__(self,
-                 knobs_callback,
+                 faders_callback,
                  buttons_callback,
                  encoder_button_callback,
                  encoder_callback,
@@ -69,11 +70,11 @@ class ElkUIController(object):
         """ Initialization.
 
             Inputs:
-                knobs_callback : function with args (knob_idx, val)
-                                 Will be invoked when an analog knob is moved.
-                                 Callback arguments:
-                                     knob_idx : int  (0 = A, 1 = B, 2 = C)
-                                     val     : knob value from 0.0 to 1.0
+                faders_callback : function with args (fader_idx, val)
+                                  Will be invoked when an analog fader is moved.
+                                  Callback arguments:
+                                      fader_idx : int  (0 = A, 1 = B, 2 = C, 3 = D)
+                                      val     : fader value from 0.0 to 1.0
 
                 buttons_callback : function with args (button_idx, val)
                                    It will be invoked whenever a button is pressed or released.
@@ -101,7 +102,7 @@ class ElkUIController(object):
         self._btn_cback = buttons_callback
         self._enc_btn_cback = encoder_button_callback
         self._enc_cback = encoder_callback
-        self._knobs_cback = knobs_callback
+        self._faders_cback = faders_callback
         self._register_osc_callbacks()
        
         self.reset_display()
@@ -141,7 +142,7 @@ class ElkUIController(object):
         for n in range(N_LEDS):
             self.set_led(n, 0)
 
-        self._knob_values = [0.0] * N_FADERS
+        self._fader_values = [0.0] * N_FADERS
         self._enc_value = 0.0
         self._osc_server.start()
 
@@ -162,7 +163,7 @@ class ElkUIController(object):
     def _register_osc_callbacks(self):
         for n in range(N_FADERS):
             print("fader: %d" % n)
-            self._osc_server.add_method(FADER_PATH_PREFIX + str(n), 'f', self._handle_knobs)
+            self._osc_server.add_method(FADER_PATH_PREFIX + str(n), 'f', self._handle_faders)
         for n in range(N_BUTTONS):
             self._osc_server.add_method(BUTTON_PATH_PREFIX + str(n), 'f', self._handle_buttons)
 
@@ -174,16 +175,16 @@ class ElkUIController(object):
     def _unhandled_msg_callback(self, path, args, types, src):
         print('Unknown OSC message %s from %s' % (path, src.url))
 
-    def _handle_knobs(self, path, args):
-        if self._knobs_cback is None:
+    def _handle_faders(self, path, args):
+        if self._faders_cback is None:
             return
 
         idx = int(path.split('_')[-1])
         val = args[0]
-        # Extra filtering for noise in knobs
-        if (abs(self._knob_values[idx] - val) > ANALOG_SENSORS_MIN_ABS_DIFF):
-            self._knobs_cback(idx, val)
-            self._knob_values[idx] = val
+        # Extra filtering for noise in faders
+        if (abs(self._fader_values[idx] - val) > ANALOG_SENSORS_MIN_ABS_DIFF):
+            self._faders_cback(idx, val)
+            self._fader_values[idx] = val
 
     def _handle_buttons(self, path, args):
         if self._btn_cback is None:
@@ -215,11 +216,13 @@ class ElkUIController(object):
         osc_msg = liblo.Message('/set_output')
         osc_msg.add(('i', RESET_PIN_INDEX))
         osc_msg.add(('i', 0))
+
         liblo.send(self._sensei_address, osc_msg)
         time.sleep(0.05) # was REFRESH_INTERVAL
         osc_msg = liblo.Message('/set_output')
         osc_msg.add(('i', RESET_PIN_INDEX))
-        osc_msg.add(('i', 1))
+        osc_msg.add(('i', 1))      
+
         liblo.send(self._sensei_address, osc_msg)
 
 

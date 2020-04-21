@@ -10,7 +10,7 @@ import time
 from elkpy import sushicontroller as sc
 from elkpy import sushiprocessor as sp
 
-from elk_ui import N_KNOBS
+from elk_ui import N_FADERS
 from elk_ui import ElkUIController
 
 
@@ -21,7 +21,7 @@ class ElkBridge(object):
     """
 
     def __init__(self):
-        self._ui = ElkUIController(self._handle_knobs,
+        self._ui = ElkUIController(self._handle_faders,
                                    self._handle_buttons,
                                    self._handle_encoder_button,
                                    self._handle_encoder)
@@ -48,14 +48,14 @@ class ElkBridge(object):
             time.sleep(0.05)
 
 
-    def _handle_knobs(self, idx, val):
+    def _handle_faders(self, idx, val):
         """ Send parameter changes to plugin
             and update OLED display
         """
         proc_id = self._procs[self._active_proc_idx][0].id
-        param_idx = int(self._active_param_page * N_KNOBS + idx)
+        param_idx = int(self._active_param_page * N_FADERS + idx)
         param_id = self._procs[self._active_proc_idx][1][param_idx].id
-        self._sushi.set_parameter_value_normalised(proc_id, param_id, val)
+        self._sushi.set_parameter_value(proc_id, param_id, val)
         self._refresh_display()
 
 
@@ -100,20 +100,20 @@ class ElkBridge(object):
                     self._active_param_page+1,
                     self._n_pages()
                 )
-        param_names = [""] * N_KNOBS
-        param_vals = [0.0] * N_KNOBS
-        first_param_idx = int(self._active_param_page * N_KNOBS)
+        param_names = [""] * N_FADERS
+        param_vals = [0.0] * N_FADERS
+        first_param_idx = int(self._active_param_page * N_FADERS)
         params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+3]
         for n, param in enumerate(params_in_page):
             param_names[n] = param.name[:6]
-            param_vals[n] = self._sushi.get_parameter_value_normalised(proc_info.id, param.id)
+            param_vals[n] = self._sushi.get_parameter_value(proc_info.id, param.id)
         param_line = "{0:^6} {1:^6} {2:^7}".format(*param_names)
         value_line = "{0:^6.2f} {1:^6.2f} {2:^7.2f}".format(*param_vals)
         self._ui.set_display_lines([header_line, param_line, value_line])
 
 
     def _n_pages(self):
-        return ceil(len(self._procs[self._active_proc_idx][1]) / N_KNOBS)
+        return ceil(len(self._procs[self._active_proc_idx][1]) / N_FADERS)
 
 
 

@@ -19,7 +19,7 @@ class ElkBridge(object):
     """
 
     def __init__(self):
-        self.ui = ElkUIController(self.handle_knobs,
+        self.ui = ElkUIController(self.handle_faders,
                                   self.handle_buttons,
                                   None,
                                   None)
@@ -37,13 +37,13 @@ class ElkBridge(object):
             time.sleep(0.05)
 
 
-    def handle_knobs(self, idx, val):
+    def handle_faders(self, idx, val):
         """ Send parameter changes to plugin
             and update OLED display
         """
-        KNOB_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
+        FADER_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
 
-        param = KNOB_PARAMETERS[idx]
+        param = FADER_PARAMETERS[idx]
         self.processor.set_parameter_value(param, val)
         self.ui.set_display_lines(["Param: %s" % param, "Value: %.2f" % val])
 
