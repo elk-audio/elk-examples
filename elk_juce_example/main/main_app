@@ -1,54 +1,35 @@
 #!/usr/bin/env python3
 '''elk_juce_example_main : glue app example for JUCE example '''
 
-__copyright__ = 'Copyright (C) 2019 Modern Ancient Instruments Networked AB, dba Elk, Stockholm, Sweden'
 
-import sys
-import os
+__copyright__   = 'Copyright (C) 2020 Modern Ancient Instruments Networked AB, dba Elk'
+__license__ = "GPL-3.0"
+
 import time
-import liblo
-from collections import defaultdict
 
 from elkpy import sushicontroller as sc
 from elkpy import sushiprocessor as sp
 
+from elk_ui import ElkUIController
+
 from demo_opts import get_device
 from luma.core.render import canvas
 
-###############
-#  Constants  #
-###############
+import liblo
 
-SUSHI_ADDRESS = ('localhost:51051')
+SUSHI_STARTUP_MESSAGES = [
+    ('main', 'gain', 0.8)
+]
 
-SENSEI_TO_BRIDGE_OSC_PORT = 23023
-BRIDGE_TO_SENSEI_PORT = 23024
 BRIDGE_TO_GUI_PORT = 25024
-
-SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
-
 # Replace with your local ip address on which to receive updates
-GUI_APP_ADDRESS = ('192.168.0.155', BRIDGE_TO_GUI_PORT)
+GUI_APP_ADDRESS = ('10.42.0.1', BRIDGE_TO_GUI_PORT)
 
-# Sensor input path : (tuple of (processor, parameter, display_block_id)
-SENSEI_FADER_MAP = {
-    '/sensors/analog/fader_A' :   ( 'elk_juce_example', 'Cutoff', 0),
-    '/sensors/analog/fader_B' :   ( 'elk_juce_example', 'Resonance', 1),
-    '/sensors/analog/fader_C' :   ( 'elk_juce_example', 'Room Size', 2),
-    '/sensors/analog/fader_D' :   ( 'elk_juce_example', 'Damping', 3),
-}
-
-SENSEI_BUTTONS_MAP = {
-    '/sensors/digital/button_0' : 9,
-    '/sensors/digital/button_1' : 0,
-    '/sensors/digital/button_2' : 1,
-    '/sensors/digital/button_3' : 2,
-    '/sensors/digital/button_4' : 3,
-    '/sensors/digital/button_5' : 4,
-    '/sensors/digital/button_6' : 5,
-    '/sensors/digital/button_7' : 6,
-    '/sensors/digital/button_8' : 7,
-    '/sensors/digital/rot_enc_button' : 10,
+GUI_PATHS = {
+    'Cutoff' : '/parameter/elk_juce_example/Cutoff',
+    'Resonance' : '/parameter/elk_juce_example/Resonance',
+    'Room Size' : '/parameter/elk_juce_example/Room_Size',
+    'Damping' : '/parameter/elk_juce_example/Damping'
 }
 
 GUI_PARAMETER_MAP = {
@@ -58,193 +39,114 @@ GUI_PARAMETER_MAP = {
     '/parameter/elk_juce_example/Damping' :   ( 'elk_juce_example', 'Damping', 3)
 }
 
-GUI_PATHS = {
-    'Cutoff' : '/parameter/elk_juce_example/Cutoff',
-    'Resonance' : '/parameter/elk_juce_example/Resonance',
-    'Room Size' : '/parameter/elk_juce_example/Room_Size',
-    'Damping' : '/parameter/elk_juce_example/Damping'
-}
+# TODO: Use the below to draw bars on screen instead of test?
+# class Display(object):
+#     def __init__(self, device):
+#         self._device = device
+#         self._blocks = [1,1,1,1]
+#         self._dirty = True
 
-SUSHI_PROCESSORS = ['main','elk_juce_example']
+#     def set_block(self, id, value):
+#         self._blocks[id] = value
+#         self._dirty = True
 
-SUSHI_STARTUP_MESSAGES = [
-    ('main', 'gain', 0.8)
-]
-
-ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
-
-REFRESH_INTERVAL = 0.05
-DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
-RESET_PIN_INDEX = 31
-
-# # Get protofile to generate grpc library
-# proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-# if proto_file is None:
-#     print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
-#     sys.exit(-1)
-
-#########################
-#  Module functions
-#########################
-
-# Set the value of an led on the board
-def set_led_output(sensor_idx, enabled):
-    osc_msg = liblo.Message('/set_output')
-    osc_msg.add(('i', sensor_idx))
-    osc_msg.add(('i', int(enabled)))
-    liblo.send(SENSEI_ADDRESS, osc_msg)
-
-# Set the value of a gui component
-def set_gui_output(parameter, value):
-    osc_msg = liblo.Message(GUI_PATHS[parameter])
-    osc_msg.add(('f', float(value)))
-    liblo.send(GUI_APP_ADDRESS, osc_msg)
-
-def reset_display():
-    osc_msg = liblo.Message('/set_output')
-    osc_msg.add(('i', RESET_PIN_INDEX))
-    osc_msg.add(('i', 0))
-    liblo.send(SENSEI_ADDRESS, osc_msg)
-    time.sleep(REFRESH_INTERVAL)
-    osc_msg = liblo.Message('/set_output')
-    osc_msg.add(('i', RESET_PIN_INDEX))
-    osc_msg.add(('i', 1))
-    liblo.send(SENSEI_ADDRESS, osc_msg)
-
-################
-#  Classes     #
-################
-
-# Simple class to manage drawing 4 parameter values on an 128 x 64 px oled display
-class Display(object):
-    def __init__(self, device):
-        self._device = device
-        self._blocks = [1,1,1,1]
-        self._dirty = True
-
-    def set_block(self, id, value):
-        self._blocks[id] = value
-        self._dirty = True
-
-    def draw(self):
-        if not self._dirty:
-            return
+#     def draw(self):
+#         print('DRAW CALLED')
+#         if not self._dirty:
+#             return
         
-        # Draw 4 blocks representing 4 parameter values
+#         # Draw 4 blocks representing 4 parameter values
         
-        height = 64
-        width = 32
+#         height = 64
+#         width = 32
 
-        with canvas(self._device) as draw:
-            draw.rectangle([0,0, 128, height], 0)
-            for i, val in enumerate(self._blocks):
-                x = i * width
-                y = height - int(round(val * height))
-                draw.rectangle([x, y, x + width, height], 1)
+#         with canvas(self._device) as draw:
+#             draw.rectangle([0,0, 128, height], 0)
+#             for i, val in enumerate(self._blocks):
+#                 x = i * width
+#                 y = height - int(round(val * height))
+#                 draw.rectangle([x, y, x + width, height], 1)
                 
-            self._dirty = False
+#             self._dirty = False
 
-
-# Bridge/Glue object that manages duplex communication between Sushi and the controlling interface (which
-# could be a hw controller, Open stage control, TouchOSC or similar) And encapsulates simple logic
-# around programs, state leds and similiar.
 class ElkBridge(object):
-    def __init__(self, display_device):        
-        self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
-        self._sushi = sc.SushiController(SUSHI_ADDRESS)
-        self._processors = self._create_processors(SUSHI_PROCESSORS)
-        self._values = defaultdict(float)
-        self._analog_values = defaultdict(float)
-        self._buttons = [False] * 9
-        self._display = display_device
-        self._active_button = 0
+    """ 
+    Bridge / Glue application to connect board UI (pots, buttons, LEDs, etc.)
+    to changes in SUSHI's processors.
+    """
 
-        self.register_callbacks()
-        self._send_initial_sushi_configuration()
+    def __init__(self):
+        self.ui = ElkUIController(self.handle_faders,
+                                   self.handle_buttons,
+                                   None,
+                                   None)
+        self.sushi = sc.SushiController()
+        self.processor = sp.SushiProcessor("elk_juce_example", self.sushi)
 
-    def _create_processors(self, list_of_processors):
-        processors = {}
-        for processor in list_of_processors:
-            processors[processor] = sp.SushiProcessor(processor,self._sushi)
-        return processors
+        # self._display = display_device
 
-    def register_callbacks(self):
-        for path, unused in SENSEI_FADER_MAP.items():
-            self._server.add_method(path, 'f', self._handle_faders)
+        # TODO: Does the new elk_ui have this? Or is this fine as is?
+        # self._send_initial_sushi_configuration()
 
-        for path, unused in GUI_PARAMETER_MAP.items():
-            self._server.add_method(path, 'f', self._handle_gui_updates)
+    def run(self):
+        """ Minimal event loop
+        """
+        self.ui.run()
+        while True:
+            self.refresh_sliders()
+            self.ui.refresh()
+            time.sleep(0.05)
 
-        for path, v in (SENSEI_BUTTONS_MAP).items():
-            self._server.add_method(path, 'f', self._handle_buttons)
+    # def _send_initial_sushi_configuration(self):
+    #     for data in SUSHI_STARTUP_MESSAGES:
+    #         self._processors[data[0]].set_parameter_value(data[1], data[2])
 
-        self._server.add_method(None, None, self._unhandled_msg_callback)
+    # Transmit the value to OSC remote (GUI for example)
+    def transmit_value(self, parameter, value):
+        osc_msg = liblo.Message(GUI_PATHS[parameter])
+        osc_msg.add(('f', float(value)))
+        liblo.send(GUI_APP_ADDRESS, osc_msg)
 
-    def _unhandled_msg_callback(self, path, args, types, src):
-        print('Unknown message %s from %s' % (path, src.url))
-
-    def start(self):
-        self._server.start()
-
-    # Query Sushi for parameter values and update the knob positions accordingly
-    def refresh_knobs(self):
+    # Query Sushi for parameter values and update the display accordingly
+    def refresh_sliders(self):
         for path, data in GUI_PARAMETER_MAP.items():
             processor = data[0]
             parameter = data[1]
-            display_block = data[2]  
-            value = self._processors[processor].get_parameter_value(parameter)
+            idx = data[2]  
+            value = self.processor.get_parameter_value(parameter)
 
-            if self._values[parameter] != value:
-                set_gui_output(parameter, value)
-                self._values[parameter] = value
-                self._display.set_block(display_block, value)
+            if self.ui._fader_values[idx] != value:
+                self.ui._fader_values[idx] = value
+                self.draw(parameter, value)
 
-    def _send_initial_sushi_configuration(self):
-        for data in SUSHI_STARTUP_MESSAGES:
-            self._processors[data[0]].set_parameter_value(data[1], data[2])
+    def draw(self, parameter, value):
+        self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.2f" % value])  
 
     # Callback for faders
-    def _handle_faders(self, path, args):
-        value = args[0]
-        data = SENSEI_FADER_MAP[path]
-        parameter = data[1]
-        # Due to noise in faders, add some hysteresis
-        if (abs(self._analog_values[parameter] - value) > ANALOG_SENSORS_MIN_ABS_DIFF):
-            self._analog_values[parameter] = value
-            self._handle_value_change(data, value)
+    def handle_faders(self, idx, val):
+        """ Send parameter changes to plugin
+            and update OLED display
+        """
+        FADER_PARAMETERS = [ "Cutoff", "Resonance", "Room Size", "Damping" ]    
 
-    # Callback for updates from GUI over OSC
-    def _handle_gui_updates(self, path, args):
-        value = args[0]
-        data = GUI_PARAMETER_MAP[path]
-        self._handle_value_change(data, value)
+        parameter = FADER_PARAMETERS[idx]
+        self.processor.set_parameter_value(parameter, val)
+        self.draw(parameter, val)
 
-    def _handle_value_change(self, data, value):
-        processor = data[0]
-        parameter = data[1]
-        display_block = data[2]
-        if parameter != 'unused':
-            self._processors[processor].set_parameter_value(parameter, value)
-            self._values[parameter] = value
-        self._display.set_block(display_block, value)
+        self.transmit_value(parameter, val)
 
-    # Callback for enabled/disabled buttons. Only turns leds on / off
-    def _handle_buttons(self, path, args):
-        if (args[0] > 0.5):
-            target = SENSEI_BUTTONS_MAP[path]
-            self._buttons[target] = not self._buttons[target]
-            set_led_output(SENSEI_BUTTONS_MAP[path], self._buttons[target])
+    def handle_buttons(self, idx, val):
+        """ Send Note ON / OFF messages to SUSHI
+            and update LEDs
+        """
+        # C3 + C scale from C4 to C5
+        BUTTON_MIDI_NOTES = [ 48, 60, 62, 64, 65, 67, 69, 71, 72 ]
 
+        self.sushi.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
+        self.ui.set_led(idx, val)
 
 if __name__ == '__main__':
-    reset_display()
-    display = Display(get_device(DISPLAY_CONFIG))
-    rack_bridge = ElkBridge(display)
-    rack_bridge.start()
+    bridge = ElkBridge()
+    bridge.run()
 
-    while True:
-        # App is callback driven, so do nothing here, though this loop can be used to do periodic
-        # updates, flash leds, etc.
-        rack_bridge.refresh_knobs()
-        display.draw()
-        time.sleep(REFRESH_INTERVAL)
+
