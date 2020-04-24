@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''elk_juce_example_main : glue app example for JUCE example '''
 
-
 __copyright__   = 'Copyright (C) 2020 Modern Ancient Instruments Networked AB, dba Elk'
 __license__ = "GPL-3.0"
 
@@ -17,57 +16,20 @@ from luma.core.render import canvas
 
 import liblo
 
-SUSHI_STARTUP_MESSAGES = [
-    ('main', 'gain', 0.8)
-]
-
 BRIDGE_TO_GUI_PORT = 25024
 # Replace with your local ip address on which to receive updates
 GUI_APP_ADDRESS = ('10.42.0.1', BRIDGE_TO_GUI_PORT)
 
+PROCESSOR_NAME = 'elk_juce_example'
+
+FADER_PARAMETERS = [ 'Cutoff', 'Resonance', 'Room Size', 'Damping' ]
+
 GUI_PATHS = {
-    'Cutoff' : '/parameter/elk_juce_example/Cutoff',
-    'Resonance' : '/parameter/elk_juce_example/Resonance',
-    'Room Size' : '/parameter/elk_juce_example/Room_Size',
-    'Damping' : '/parameter/elk_juce_example/Damping'
+    FADER_PARAMETERS[0] : '/parameter/elk_juce_example/Cutoff',
+    FADER_PARAMETERS[1] : '/parameter/elk_juce_example/Resonance',
+    FADER_PARAMETERS[2] : '/parameter/elk_juce_example/Room_Size',
+    FADER_PARAMETERS[3] : '/parameter/elk_juce_example/Damping'
 }
-
-GUI_PARAMETER_MAP = {
-    '/parameter/elk_juce_example/Cutoff' :   ( 'elk_juce_example', 'Cutoff', 0),
-    '/parameter/elk_juce_example/Resonance' :   ( 'elk_juce_example', 'Resonance', 1),
-    '/parameter/elk_juce_example/Room_Size' :   ( 'elk_juce_example', 'Room Size', 2),
-    '/parameter/elk_juce_example/Damping' :   ( 'elk_juce_example', 'Damping', 3)
-}
-
-# TODO: Use the below to draw bars on screen instead of test?
-# class Display(object):
-#     def __init__(self, device):
-#         self._device = device
-#         self._blocks = [1,1,1,1]
-#         self._dirty = True
-
-#     def set_block(self, id, value):
-#         self._blocks[id] = value
-#         self._dirty = True
-
-#     def draw(self):
-#         print('DRAW CALLED')
-#         if not self._dirty:
-#             return
-        
-#         # Draw 4 blocks representing 4 parameter values
-        
-#         height = 64
-#         width = 32
-
-#         with canvas(self._device) as draw:
-#             draw.rectangle([0,0, 128, height], 0)
-#             for i, val in enumerate(self._blocks):
-#                 x = i * width
-#                 y = height - int(round(val * height))
-#                 draw.rectangle([x, y, x + width, height], 1)
-                
-#             self._dirty = False
 
 class ElkBridge(object):
     """ 
@@ -81,12 +43,7 @@ class ElkBridge(object):
                                    None,
                                    None)
         self.sushi = sc.SushiController()
-        self.processor = sp.SushiProcessor("elk_juce_example", self.sushi)
-
-        # self._display = display_device
-
-        # TODO: Does the new elk_ui have this? Or is this fine as is?
-        # self._send_initial_sushi_configuration()
+        self.processor = sp.SushiProcessor(PROCESSOR_NAME, self.sushi)
 
     def run(self):
         """ Minimal event loop
@@ -97,10 +54,6 @@ class ElkBridge(object):
             self.ui.refresh()
             time.sleep(0.05)
 
-    # def _send_initial_sushi_configuration(self):
-    #     for data in SUSHI_STARTUP_MESSAGES:
-    #         self._processors[data[0]].set_parameter_value(data[1], data[2])
-
     # Transmit the value to OSC remote (GUI for example)
     def transmit_value(self, parameter, value):
         osc_msg = liblo.Message(GUI_PATHS[parameter])
@@ -109,10 +62,7 @@ class ElkBridge(object):
 
     # Query Sushi for parameter values and update the display accordingly
     def refresh_sliders(self):
-        for path, data in GUI_PARAMETER_MAP.items():
-            processor = data[0]
-            parameter = data[1]
-            idx = data[2]  
+        for idx, parameter in enumerate(FADER_PARAMETERS):
             value = self.processor.get_parameter_value(parameter)
 
             if self.ui._fader_values[idx] != value:
@@ -127,8 +77,6 @@ class ElkBridge(object):
         """ Send parameter changes to plugin
             and update OLED display
         """
-        FADER_PARAMETERS = [ "Cutoff", "Resonance", "Room Size", "Damping" ]    
-
         parameter = FADER_PARAMETERS[idx]
         self.processor.set_parameter_value(parameter, val)
         self.draw(parameter, val)

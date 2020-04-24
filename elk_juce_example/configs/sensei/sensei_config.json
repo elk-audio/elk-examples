@@ -119,7 +119,7 @@
       {
         "id" : 10,
         "enabled": true,
-        "name" : "led_fader_A",
+        "name" : "led_fader_0",
         "sensor_type" : "digital_output",
         "hardware" :
         {
@@ -130,7 +130,7 @@
       {
         "id" : 11,
         "enabled": true,
-        "name" : "led_fader_B",
+        "name" : "led_fader_1",
         "sensor_type" : "digital_output",
         "hardware" :
         {
@@ -141,7 +141,7 @@
       {
         "id" : 12,
         "enabled": true,
-        "name" : "led_fader_C",
+        "name" : "led_fader_2",
         "sensor_type" : "digital_output",
         "hardware" :
         {
@@ -152,7 +152,7 @@
       {
         "id" : 13,
         "enabled": true,
-        "name" : "led_fader_D",
+        "name" : "led_fader_3",
         "sensor_type" : "digital_output",
         "hardware" :
         {
@@ -343,7 +343,7 @@
       {
         "id" : 26,
         "enabled": true,
-        "name" : "fader_A",
+        "name" : "fader_0",
         "sensor_type" : "analog_input",
         "mode" : "on_value_changed",
         "hardware" :
@@ -358,7 +358,7 @@
       {
         "id" : 28,
         "enabled": true,
-        "name" : "fader_B",
+        "name" : "fader_1",
         "sensor_type" : "analog_input",
         "mode" : "on_value_changed",
         "hardware" :
@@ -373,7 +373,7 @@
       {
         "id" : 29,
         "enabled": true,
-        "name" : "fader_C",
+        "name" : "fader_2",
         "sensor_type" : "analog_input",
         "mode" : "on_value_changed",
         "hardware" :
@@ -388,7 +388,7 @@
       {
         "id" : 30,
         "enabled": true,
-        "name" : "fader_D",
+        "name" : "fader_3",
         "sensor_type" : "analog_input",
         "mode" : "on_value_changed",
         "hardware" :
