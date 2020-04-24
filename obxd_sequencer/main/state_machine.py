@@ -28,22 +28,7 @@ STATE_MACHINE_MAP = {
                 "Dmp" : [{"plugin" : "reverb", "name" : "Damping", "value" : 0.0},],
                 "PrD" : [{"plugin" : "reverb", "name" : "Predelay", "value" : 0.0},]
             }
-        },
-        "gm_midi" : {
-            "main" : {
-                "Bnk" : [{"plugin" : "gm_midi", "name" : "bnk", "value" : 0.0},],
-                "Pgm" : [{"plugin" : "gm_midi", "name" : "pgm", "value" : 0.0},],
-                "Vol" : [{"plugin" : "piano_gain", "name" : "gain", "value" : 0.0},]
-            }
-        },
-        "delay" : {
-            "main" : {
-                "Fbk" : [{"plugin" : "delay", "name" : "Feedback", "value" : 0.0},],
-                "Dly" : [{"plugin" : "delay", "name" : "L Delay ", "value": 0.0},{"plugin" : "delay", "name" : "R Delay ", "value": 0.0}],
-                "D/W" : [{"plugin" : "delay", "name" : "FX Mix  ", "value" : 0.0},]
-            }
         }
-
     },
     "sequencer_obxd" : {
         "stp 1" : (0, False),
@@ -98,10 +83,9 @@ class StateMachine(object):
         plugins = list(self._state_map["plugin"].keys())
         self._parameter_page = "main"
         self._selected_plugin = plugins[(plugins.index(self._selected_plugin) + 1) % len(plugins)]
+        
         if self._selected_plugin == "obxd" or self._selected_plugin == "reverb":
             self._active_sequencer = "sequencer_obxd"
-        else:
-            self._active_sequencer = "sequencer_piano"
     
     def get_page_parameters(self, index):
         parameters = self._state_map["plugin"][self._selected_plugin][self._parameter_page]

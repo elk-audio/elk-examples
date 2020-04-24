@@ -12,6 +12,7 @@ from collections import defaultdict
 
 from elkpy import sushicontroller as sc
 from elkpy import sushiprocessor as sp
+
 import state_machine as sm
 
 from demo_opts import get_device
@@ -23,6 +24,9 @@ from PIL import ImageFont
 #  Constants  #
 ###############
 
+MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
+FONT_PATH = MODULE_PATH + "/LiberationMono-Regular.ttf"
+
 SUSHI_ADDRESS = ('localhost:51051')
 
 SENSEI_TO_BRIDGE_OSC_PORT = 23023
@@ -32,9 +36,9 @@ SENSEI_ADDRESS = ('localhost', BRIDGE_TO_SENSEI_PORT)
 
 # Sensor input path : (tuple of (processor, parameter, display_block_id)
 SENSEI_POT_MAP = {
-    '/sensors/analog/fader_A' :   0,
-    '/sensors/analog/fader_B' :   1,
-    '/sensors/analog/fader_C' :   2,
+    '/sensors/analog/fader_0' :   0,
+    '/sensors/analog/fader_1' :   1,
+    '/sensors/analog/fader_2' :   2
 }
 
 SENSEI_ENCODER_MAP = {
@@ -65,11 +69,10 @@ SUSHI_PLAYHEAD_MAP = {
     '/parameter/sequencer_obxd/step_ind_7' : 8,
 }
 
-SUSHI_PROCESSORS = ['main','sequencer_obxd','obxd','reverb','second','sequencer_piano','gm_midi','piano_gain','delay']
+SUSHI_PROCESSORS = ['main','sequencer_obxd','obxd','reverb']
 
 SUSHI_STARTUP_MESSAGES = [
-    # ('main', 'gain', -5),
-    # ('second', 'gain', -7),
+    #('main', 'gain', 0.8)
 ]
 
 ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
@@ -77,13 +80,6 @@ ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
 REFRESH_INTERVAL = 0.05
 DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
 RESET_PIN_INDEX = 31
-
-
-# Get protofile to generate grpc library
-# proto_file = os.environ.get('SUSHI_GRPC_ELKPY_PROTO')
-# if proto_file is None:
-#     print("Environment variable SUSHI_GRPC_ELKPY_PROTO not defined, set it to point the .proto definition")
-#     sys.exit(-1)
 
 #########################
 #  Module functions
@@ -115,7 +111,7 @@ def reset_display():
 class Display(object):
     def __init__(self, device):
         self._device = device
-        self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 10)
+        self._fnt = ImageFont.truetype(FONT_PATH, 10)
         self._text = [""]
         self._mode = "plugin"
         self._step = 0
@@ -127,9 +123,9 @@ class Display(object):
         if step_idx != -1:
             self._step = step_idx
         if self._mode == "plugin":
-            self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 10)
+            self._fnt = ImageFont.truetype(FONT_PATH, 10)
         elif self._mode == "sequencer":
-            self._fnt = ImageFont.truetype('LiberationMono-Regular.ttf', 12)
+            self._fnt = ImageFont.truetype(FONT_PATH, 12)
         self._dirty = True
 
     def draw(self):
@@ -146,12 +142,12 @@ class Display(object):
 
 
 # Bridge/Glue object that manages duplex communication between Sushi and the controlling interface (which
-# could be a hw controller, Open stage control, TouchOSC or similar) And encapsulates simple logic
+# could be a hw controller, Open Stage Control, TouchOSC or similar) And encapsulates simple logic
 # around programs, state leds and similiar.
 class ElkBridge(object):
     def __init__(self, display_device, state_machine):
         self._server = liblo.ServerThread(SENSEI_TO_BRIDGE_OSC_PORT)
-        self._sushi = sc.SushiController(SUSHI_ADDRESS)
+        self._sushi = sc.SushiController()
         self._processors = self._create_processors(SUSHI_PROCESSORS)
         self._values = defaultdict(float)
         self._analog_values = defaultdict(float)
@@ -191,27 +187,22 @@ class ElkBridge(object):
     def start(self):
         self._server.start()
         self._processors["obxd"].set_parameter_value("VoiceCount", 6/8)
+
         self._processors["obxd"].set_parameter_value("Cutoff", 0.5)
+        
         self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
         self._sushi.set_tempo(200)
-        # Stranger Things
-        self._processors["sequencer_obxd"].set_parameter_value("pitch_0",0.4166)
+
+        # Arpeggio
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_0",0.4166666666666667)
         self._processors["sequencer_obxd"].set_parameter_value("pitch_1",0.5)
         self._processors["sequencer_obxd"].set_parameter_value("pitch_2",0.5625)
-        self._processors["sequencer_obxd"].set_parameter_value("pitch_3",0.6458)
-        self._processors["sequencer_obxd"].set_parameter_value("pitch_4",0.6666)
-        self._processors["sequencer_obxd"].set_parameter_value("pitch_5",0.6458)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_3",0.6458333333333334)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_4",0.6666666666666666)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_5",0.6458333333333334)
         self._processors["sequencer_obxd"].set_parameter_value("pitch_6",0.5625)
         self._processors["sequencer_obxd"].set_parameter_value("pitch_7",0.5)
-        # Turn off
-        self._processors["sequencer_piano"].set_parameter_value("step_0",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_1",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_2",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_3",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_4",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_5",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_6",0.5)
-        self._processors["sequencer_piano"].set_parameter_value("step_7",0.5)
+
         set_led_output(10, True)
         set_led_output(11, True)
         set_led_output(12, True)
@@ -241,7 +232,6 @@ class ElkBridge(object):
 
             if self._state_machine.get_parameter(parameter) != value:
                 self._state_machine.set_parameter(parameter, value)
-                # self._values[parameter] = value
         
         self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
 
@@ -260,6 +250,7 @@ class ElkBridge(object):
                 self._state_machine.get_page_parameters(SENSEI_POT_MAP[path]),
                 self._state_machine.get_knob_name(SENSEI_POT_MAP[path]))
         knob = SENSEI_POT_MAP[path]
+
         # Due to noise in pots, add some hysteresis
         if (abs(self._analog_values[knob] - value) > ANALOG_SENSORS_MIN_ABS_DIFF):
             if data[1][0]["name"] == "bnk":
@@ -271,24 +262,15 @@ class ElkBridge(object):
             else: 
                 self._handle_value_change(data, value)
             self._analog_values[knob] = value
-            # self._state_machine.set_parameter_from_page(SENSEI_POT_MAP[path], value)
 
     def _handle_value_change(self, data, value):
         processor = data[0]
         parameters = data[1]
         for parameter in parameters:
             if parameter != 'unused':
-                if parameter["name"] == "gain":
-                    OldMin = 0.0
-                    OldMax = 1.0
-                    NewMin = -96
-                    NewMax = 0.0
-                    OldRange = (OldMax - OldMin)  
-                    NewRange = (NewMax - NewMin)  
-                    value = (((value - OldMin) * NewRange) / OldRange) + NewMin
                 self._processors[processor].set_parameter_value(parameter["name"], value)
-                # self._values[parameter["name"]] = value
                 self._state_machine.set_parameter(parameter["name"], value)
+
         self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
 
     # Callback for enabled/disabled buttons. Only turns leds on / off
@@ -317,12 +299,11 @@ class ElkBridge(object):
                 self._state_machine.set_mode("sequencer")
                 self._active_button = target
                 self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode(), target)
-                #self._buttons[target] = not self._buttons[target]
-                #set_led_output(SENSEI_BUTTONS_MAP[path], self._buttons[target])
+                
         elif SENSEI_BUTTONS_MAP[path] != 10 and SENSEI_BUTTONS_MAP[path] != 9:
             self._state_machine.set_mode("plugin")
 
-    # Callbac for encoder rotation
+    # Callback for encoder rotation
     def _handle_encoder(self, path, args):
         value = args[0]
         if value != self._values["encoder"]:
@@ -340,12 +321,8 @@ class ElkBridge(object):
     def _handle_playhead(self, path, args):
         set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, args[0])
 
-
-
-
 if __name__ == '__main__':
     state_machine = sm.StateMachine()
-    #display = Display(dummy())
     reset_display()
     display = Display(get_device(DISPLAY_CONFIG))
     rack_bridge = ElkBridge(display, state_machine)

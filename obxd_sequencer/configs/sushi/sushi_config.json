@@ -31,39 +31,6 @@
                     "type" : "vst2x"
                 }
             ]
-        },
-        {
-            "name" : "second",
-            "mode" : "stereo",
-            "inputs" : [],
-            "outputs" : [
-                {
-                    "engine_bus" : 0,
-                    "track_bus" : 0
-                }
-            ],
-            "plugins" : [
-                {
-                    "uid" : "sushi.testing.step_sequencer",
-                    "name" : "sequencer_piano",
-                    "type" : "internal" 
-                },
-                {
-                    "path" : "/udata/elk-examples/plugins/Obxd.so",
-                    "name" : "gm_midi",
-                    "type"   : "vst2x"
-                },
-                {
-                    "path" : "/home/mind/plugins/mda-vst2/mdaDelay.so",
-                    "name" : "delay",
-                    "type" : "vst2x"
-                },
-                {
-                    "uid" : "sushi.testing.gain",
-                    "name" : "piano_gain",
-                    "type" : "internal"
-                }
-            ]
         }
     ],
     "midi" : {
@@ -72,12 +39,6 @@
                 "port": 0,
                 "channel": "all",
                 "track": "main",
-                "raw_midi": false
-            },
-            {
-                "port": 0,
-                "channel": "all",
-                "track": "second",
                 "raw_midi": false
             }
         ],
