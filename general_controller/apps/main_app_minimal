@@ -11,6 +11,7 @@ from elkpy import sushiprocessor as sp
 
 from elk_ui import ElkUIController
 
+FADER_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
 
 class ElkBridge(object):
     """ 
@@ -26,12 +27,15 @@ class ElkBridge(object):
 
         self.sushi = sc.SushiController()
         self.processor = sp.SushiProcessor("synth", self.sushi)
-
+        
+        self._active_param_idx = 0
+        self._refresh_display()
 
     def run(self):
         """ Minimal event loop
         """
         self.ui.run()
+
         while True:
             self.ui.refresh()
             time.sleep(0.05)
@@ -41,11 +45,10 @@ class ElkBridge(object):
         """ Send parameter changes to plugin
             and update OLED display
         """
-        FADER_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
-
+        self._active_param_idx = idx
         param = FADER_PARAMETERS[idx]
         self.processor.set_parameter_value(param, val)
-        self.ui.set_display_lines(["Param: %s" % param, "Value: %.2f" % val])
+        self._refresh_display()
 
 
     def handle_buttons(self, idx, val):
@@ -58,6 +61,12 @@ class ElkBridge(object):
         self.sushi.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
         self.ui.set_led(idx, val)
 
+
+    def _refresh_display(self):
+        parameter = FADER_PARAMETERS[self._active_param_idx]
+        value = self.processor.get_parameter_value(parameter)
+        
+        self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.3f" % value])
 
 
 if __name__ == '__main__':
