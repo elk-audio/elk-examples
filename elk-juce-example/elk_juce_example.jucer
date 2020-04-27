@@ -7,21 +7,21 @@
               id="vXK47v" jucerVersion="5.4.5">
   <MAINGROUP id="zI9r2C" name="elk_juce_example">
     <GROUP id="{70CE292C-E9C5-C029-B95A-F7DF41E5F74C}" name="Source">
-      <FILE id="sj5y7g" name="Main.cpp" compile="1" resource="0" file="source/Main.cpp"/>
-      <FILE id="uCcHX8" name="SynthEditor.h" compile="0" resource="0" file="source/SynthEditor.h"/>
-      <FILE id="JwBVj7" name="SynthGUI.h" compile="0" resource="0" file="source/SynthGUI.h"/>
-      <FILE id="YK52eW" name="SynthOSCReceiver.h" compile="0" resource="0"
-            file="source/SynthOSCReceiver.h"/>
-      <FILE id="jWTpBJ" name="SynthProcessor.h" compile="0" resource="0"
-            file="source/SynthProcessor.h"/>
+      <FILE id="RDYDVM" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="h3AjrY" name="SynthEditor.h" compile="0" resource="0" file="Source/SynthEditor.h"/>
+      <FILE id="NQn1zZ" name="SynthGUI.h" compile="0" resource="0" file="Source/SynthGUI.h"/>
+      <FILE id="SQAe38" name="SynthOSCReceiver.h" compile="0" resource="0"
+            file="Source/SynthOSCReceiver.h"/>
+      <FILE id="yTYE4W" name="SynthProcessor.h" compile="0" resource="0"
+            file="Source/SynthProcessor.h"/>
     </GROUP>
     <GROUP id="V3VegV" name="Assets">
-      <FILE id="SPdHRh" name="cello.cpp" compile="1" resource="0" file="source/cello.cpp"/>
-      <FILE id="UB3PT6" name="cello.h" compile="0" resource="0" file="source/cello.h"/>
-      <FILE id="e8igCb" name="ElkLogo.cpp" compile="1" resource="0" file="source/ElkLogo.cpp"/>
-      <FILE id="CPeDNh" name="ElkLogo.h" compile="0" resource="0" file="source/ElkLogo.h"/>
-      <FILE id="ilJ7aH" name="MaterialLookAndFeel.h" compile="0" resource="0"
-            file="source/MaterialLookAndFeel.h"/>
+      <FILE id="I58Vp0" name="cello.cpp" compile="1" resource="0" file="Source/cello.cpp"/>
+      <FILE id="M9Bjzn" name="cello.h" compile="0" resource="0" file="Source/cello.h"/>
+      <FILE id="cYNH3A" name="ElkLogo.cpp" compile="1" resource="0" file="Source/ElkLogo.cpp"/>
+      <FILE id="Zm1dM8" name="ElkLogo.h" compile="0" resource="0" file="Source/ElkLogo.h"/>
+      <FILE id="J5u72i" name="MaterialLookAndFeel.h" compile="0" resource="0"
+            file="Source/MaterialLookAndFeel.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
