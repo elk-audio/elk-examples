@@ -4,4 +4,8 @@ For the example projects that complement the online [elk-docs](https://elk-audio
 
 The binary files needed for them can be downloaded from the [repository's Releases section](https://github.com/elk-audio/elk-examples/releases/).
 
-To use with [elkpy](https://github.com/elk-audio/elkpy) follow the instructions in the repository.
+The contents of the folders are as follows:
+
+**Blackboard**
+
+The examples under the `blackboard` folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific for each platform.

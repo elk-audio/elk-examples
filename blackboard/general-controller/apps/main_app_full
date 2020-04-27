@@ -92,6 +92,7 @@ class ElkBridge(object):
 
     def _refresh_display(self):
         proc_info = self._procs[self._active_proc_idx][0]
+
         if hasattr(proc_info, 'input_channels'):
             header_line = "Track: %s" % proc_info.name[:14]
         else:
@@ -103,8 +104,9 @@ class ElkBridge(object):
         param_names = [""] * N_FADERS
         param_vals = [0.0] * N_FADERS
         first_param_idx = int(self._active_param_page * N_FADERS)
-        nparams = 4
-        params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+nparams]
+        
+        params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+N_FADERS]
+        
         for n, param in enumerate(params_in_page):
             param_names[n] = param.name[:10]
             param_vals[n] = self._sushi.get_parameter_value(proc_info.id, param.id)

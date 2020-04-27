@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start Elk JUCE example
+
+sushi -r -c ./sushi-configs/sushi_config.json &
+
+sensei -f ../common-files/sensei_config.json &
+
+./main/main_app &
+
+sleep 3
+
+aconnect 16 128
+
+

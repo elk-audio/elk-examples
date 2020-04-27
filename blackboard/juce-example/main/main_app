@@ -11,8 +11,9 @@ from elkpy import sushiprocessor as sp
 
 from elk_ui import ElkUIController
 
-from demo_opts import get_device
-from luma.core.render import canvas
+# TODO: Check if these can be removed completely
+#from demo_opts import get_device
+#from luma.core.render import canvas
 
 import liblo
 
@@ -44,7 +45,7 @@ class ElkBridge(object):
                                    None)
         self.sushi = sc.SushiController()
         self.processor = sp.SushiProcessor(PROCESSOR_NAME, self.sushi)
-
+        
     def run(self):
         """ Minimal event loop
         """
@@ -96,5 +97,3 @@ class ElkBridge(object):
 if __name__ == '__main__':
     bridge = ElkBridge()
     bridge.run()
-
-
