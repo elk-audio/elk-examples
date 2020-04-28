@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start Elk JUCE example
+
+sushi -r --multicore-processing=2 -c ./sushi-configs/obxd_step.json &
+
+sensei -f ../common-files/sensei_config.json &
+
+./apps/main_app_full &
+
+sleep 3
+
+aconnect 16 128
+
+

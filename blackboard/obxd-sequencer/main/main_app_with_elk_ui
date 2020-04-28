@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+'''main_app_minimal : minimal glue app example for controlling a synth'''
+
+__copyright__   = 'Copyright (C) 2020 Modern Ancient Instruments Networked AB, dba Elk'
+__license__ = "GPL-3.0"
+
+import time
+
+from elkpy import sushicontroller as sc
+from elkpy import sushiprocessor as sp
+
+from elk_ui import ElkUIController
+
+SUSHI_PROCESSORS = ['main','sequencer_obxd','obxd','reverb']
+
+FADER_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
+
+class ElkBridge(object):
+    """ 
+    Bridge / Glue application to connect board UI (pots, buttons, LEDs, etc.)
+    to changes in SUSHI's processors.
+    """
+
+    def __init__(self):
+        self.ui = ElkUIController(self.handle_faders,
+                                  self.handle_buttons,
+                                  self.handle_encoder_button,
+                                  self.handle_encoder)
+
+        self.sushi = sc.SushiController()
+        self._processors = self._create_processors(SUSHI_PROCESSORS)
+        
+
+        self._processors["obxd"].set_parameter_value("VoiceCount", 6/8)
+
+        self._processors["obxd"].set_parameter_value("Cutoff", 0.5)
+        
+        self.sushi.set_tempo(200)
+
+        # Arpeggio
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_0",0.4166666666666667)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_1",0.5)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_2",0.5625)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_3",0.6458333333333334)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_4",0.6666666666666666)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_5",0.6458333333333334)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_6",0.5625)
+        self._processors["sequencer_obxd"].set_parameter_value("pitch_7",0.5)
+
+        self.ui.set_led(10, True)
+        self.ui.set_led(11, True)
+        self.ui.set_led(12, True)
+        self.ui.set_led(13, True)
+
+        self._active_proc_idx = 0
+        self._active_param_idx = 0
+        self._refresh_display()
+
+
+    def run(self):
+        """ Minimal event loop
+        """
+        self.ui.run()
+
+        while True:
+            self.ui.refresh()
+            time.sleep(0.05)
+
+
+    def handle_faders(self, idx, val):
+        """ Send parameter changes to plugin
+            and update OLED display
+        """
+        self._active_param_idx = idx
+        param = FADER_PARAMETERS[idx]
+        self._processors['obxd'].set_parameter_value(param, val)
+        self._refresh_display()
+
+
+    def handle_buttons(self, idx, val):
+        print('Button: ', idx, ', val: ', val)
+        if idx == 0 and val == 1:
+            if self.sushi.get_playing_mode() == 1:
+                self.sushi.set_playing_mode(2)
+                self.ui.set_led(idx, True)
+            else:
+                self.sushi.set_playing_mode(1)
+                self.ui.set_led(idx, False)
+                for i in range(128):
+                    for track in self.sushi.get_tracks():
+                         self.sushi.send_note_off(track.id,0,i,0)       
+
+
+    def handle_encoder_button(self, val):
+        """ Move to next plugin in list
+        """
+        if (val > 0):
+            self._active_proc_idx += 1
+            self._active_proc_idx %= len(self._processors)
+            # self._active_param_page = 0
+            self._refresh_display()
+
+
+    def handle_encoder(self, direction):
+        """ Move through parameter pages
+        """
+        # self._active_param_page += int(direction)
+        # self._active_param_page %= self._n_pages()
+        # self._refresh_display()
+
+
+    def _refresh_display(self):
+        parameter = FADER_PARAMETERS[self._active_param_idx]
+        value = self._processors['obxd'].get_parameter_value(parameter)
+        
+        self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.3f" % value])
+
+
+    def _create_processors(self, list_of_processors):
+        processors = {}
+        for processor in list_of_processors:
+            processors[processor] = sp.SushiProcessor(processor,self.sushi)
+        return processors
+
+if __name__ == '__main__':
+    bridge = ElkBridge()
+    bridge.run()
+

@@ -35,6 +35,10 @@ The source code and JUCE `.jucer` file, for building our Elk JUCE example vst2 p
 
 The plugin is accompanied by a python program for integrating it with the Blackboard controls, and with an instance of the plugin running on a desktop computer, synchronizing the two plugin instance's (Elk Pi and desktop) state over OSC.
 
+**Multi-FX**
+
+This example demonstrates using Sushi as a host of multiple effects applied on the audio input signal. It includes an Open Stage Control GUI example, and configuration files for running on the desktop, and on the Elk Pi. All the plugins used are already installed on the Elk Pi image. When running on the Elk Pi with a blackboard, it can also be used with the full "general controller" python glue app, for which there is a batch script in the "general-controller" folder.
+
 **Benchmark Synth**
 
 This is a simple tool that uses Sushi's internal timing mechanism and its gRPC API to accurate measure the CPU load of a synthesizer at NoteON events.

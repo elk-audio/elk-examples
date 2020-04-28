@@ -39,16 +39,6 @@ STATE_MACHINE_MAP = {
         "stp 6" : (0, False),
         "stp 7" : (0, False),
         "stp 8" : (0, False)
-    },
-    "sequencer_piano" : {
-        "stp 1" : (0, False),
-        "stp 2" : (0, False),
-        "stp 3" : (0, False),
-        "stp 4" : (0, False),
-        "stp 5" : (0, False),
-        "stp 6" : (0, False),
-        "stp 7" : (0, False),
-        "stp 8" : (0, False)
     }
 }
 
@@ -69,6 +59,7 @@ class StateMachine(object):
                 float(self._state_map[self._mode][self._selected_plugin][self._parameter_page][self.get_knob_name(0)][0]["value"]),
                 float(self._state_map[self._mode][self._selected_plugin][self._parameter_page][self.get_knob_name(1)][0]["value"]),
                 float(self._state_map[self._mode][self._selected_plugin][self._parameter_page][self.get_knob_name(2)][0]["value"])))
+                
         elif "sequencer" in self._mode:
             steps = self._state_map[self._active_sequencer]
             for step in steps:
