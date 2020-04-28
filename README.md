@@ -6,10 +6,6 @@ The binary files needed for them can be downloaded from the [repository's Releas
 
 The contents of the folders are as follows:
 
-**Blackboard**
-
-The examples under the `blackboard` folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific for each platform.
-
 **MDA JX10 VST 2**
 
 This example demonstrates how to control the mda jx10 vst2 plugin using OSC messages, by means of the Open Stage Control GUI provided in the folder.
@@ -39,8 +35,13 @@ The plugin is accompanied by a python program for integrating it with the Blackb
 
 This example demonstrates using Sushi as a host of multiple effects applied on the audio input signal. It includes an Open Stage Control GUI example, and configuration files for running on the desktop, and on the Elk Pi. All the plugins used are already installed on the Elk Pi image. When running on the Elk Pi with a blackboard, it can also be used with the full "general controller" python glue app, for which there is a batch script in the "general-controller" folder.
 
+**Blackboard**
+
+The examples under the `blackboard` folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific to each platform.
+
 **Benchmark Synth**
 
 This is a simple tool that uses Sushi's internal timing mechanism and its gRPC API to accurate measure the CPU load of a synthesizer at NoteON events.
 
 See the [README.md in the benchmark-synth subfolder](benchmark-synth/README.md) for more details.
+

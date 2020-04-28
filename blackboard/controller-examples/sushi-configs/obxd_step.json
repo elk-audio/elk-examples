@@ -23,7 +23,7 @@
                    "type" : "internal" 
                 },
                 {
-                    "path" : "/udata/elk-examples/pi4-plugins/Obxd.so",
+                    "path" : "/udata/elk-examples/plugins/Obxd.so",
                     "name" : "synth",
                     "type"   : "vst2x"
                 }

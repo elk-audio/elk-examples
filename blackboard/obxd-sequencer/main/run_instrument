@@ -1,7 +1,7 @@
 #!/bin/bash
 # Start Elk Sequencer example
 
-sushi -r -c ../configs/sushi/sushi_config.json &
+sushi -r  --multicore-processing=2 -c ../configs/sushi/sushi_config.json &
 
 sensei -f ../configs/sensei/sensei_config.json &
 
