@@ -4,6 +4,6 @@
 pkill -f 'python3 ./main_app_minimal'
 pkill -f 'python3 ./main_app_general'
 
-pkill -2 sensei
+sudo systemctl stop sensei
 
 pkill -2 sushi

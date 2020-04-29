@@ -8,7 +8,6 @@ from math import ceil
 import time
 
 from elkpy import sushicontroller as sc
-from elkpy import sushiprocessor as sp
 
 from elk_ui import N_FADERS
 from elk_ui import ElkUIController

@@ -3,7 +3,7 @@
 
 sushi -r --multicore-processing=2 -c ./sushi-configs/obxd_step.json &
 
-sensei -f /usr/share/sensei/blackboard.json &
+sudo systemctl start sensei
 
 (cd ./apps; ./main_app_minimal &)
 
