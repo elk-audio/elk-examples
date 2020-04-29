@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start Elk JUCE example
+
+sushi -r --multicore-processing=2 -c ../../multi-fx/elk_multi_fx_pi.json &
+
+sensei -f /usr/share/sensei/blackboard.json &
+
+./apps/main_app_general &
+
+sleep 3
+
+aconnect 16 128
+
+

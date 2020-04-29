@@ -1,0 +1,8 @@
+#!/bin/bash
+# Stop Elk JUCE example
+
+pkill -f 'python3 ./main_app'
+
+sudo systemctl stop sensei
+
+pkill -2 sushi
