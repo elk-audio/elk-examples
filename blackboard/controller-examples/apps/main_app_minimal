@@ -25,21 +25,24 @@ class ElkBridge(object):
                                   None,
                                   None)
 
+        
         self.sushi = sc.SushiController()
         self.processor = sp.SushiProcessor("synth", self.sushi)
         
         self._active_param_idx = 0
+
         self._refresh_display()
+
 
     def run(self):
         """ Minimal event loop
         """
         self.ui.run()
-
+                
         while True:
-            self.ui.refresh()
             time.sleep(0.05)
-
+            self.ui.refresh()
+            
 
     def handle_faders(self, idx, val):
         """ Send parameter changes to plugin
@@ -48,6 +51,7 @@ class ElkBridge(object):
         self._active_param_idx = idx
         param = FADER_PARAMETERS[idx]
         self.processor.set_parameter_value(param, val)
+        
         self._refresh_display()
 
 
@@ -70,6 +74,6 @@ class ElkBridge(object):
 
 
 if __name__ == '__main__':
-    bridge = ElkBridge()
+    bridge = ElkBridge()    
     bridge.run()
 

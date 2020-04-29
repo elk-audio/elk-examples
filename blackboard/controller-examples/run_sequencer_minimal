@@ -3,9 +3,9 @@
 
 sushi -r --multicore-processing=2 -c ./sushi-configs/obxd_step.json &
 
-sensei -f ../common-files/sensei_config.json &
+sensei -f /usr/share/sensei/blackboard.json &
 
-./apps/main_app_minimal &
+(cd ./apps; ./main_app_minimal &)
 
 sleep 3
 

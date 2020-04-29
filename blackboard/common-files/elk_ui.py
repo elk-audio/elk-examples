@@ -218,11 +218,12 @@ class ElkUIController(object):
         osc_msg.add(('i', 0))
 
         liblo.send(self._sensei_address, osc_msg)
-        time.sleep(0.05) # was REFRESH_INTERVAL
+        time.sleep(0.05)
         osc_msg = liblo.Message('/set_output')
         osc_msg.add(('i', RESET_PIN_INDEX))
         osc_msg.add(('i', 1))      
 
         liblo.send(self._sensei_address, osc_msg)
 
+        time.sleep(0.5)
 

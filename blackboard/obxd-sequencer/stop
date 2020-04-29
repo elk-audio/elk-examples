@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stop Elk JUCE example
+# Stop Elk Sequencer Example
 
 pkill -f 'python3 ./main_app'
 

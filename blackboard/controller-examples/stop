@@ -1,9 +1,9 @@
 #!/bin/bash
 # Stop Elk JUCE example
 
-pkill -f 'python3 ./apps/main_app_minimal'
-pkill -f 'python3 ./apps/main_app_general'
+pkill -f 'python3 ./main_app_minimal'
+pkill -f 'python3 ./main_app_general'
 
-pkill sensei
+pkill -2 sensei
 
-pkill sushi
+pkill -2 sushi
