@@ -80,6 +80,7 @@ ANALOG_SENSORS_MIN_ABS_DIFF = (1.0 / 127)
 REFRESH_INTERVAL = 0.05
 DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
 RESET_PIN_INDEX = 31
+DISPLAY_RESET_INTERVAL = 0.2
 
 #########################
 #  Module functions
@@ -102,6 +103,7 @@ def reset_display():
     osc_msg.add(('i', RESET_PIN_INDEX))
     osc_msg.add(('i', 1))
     liblo.send(SENSEI_ADDRESS, osc_msg)
+    time.sleep(DISPLAY_RESET_INTERVAL)
 
 ################
 #  Classes     #

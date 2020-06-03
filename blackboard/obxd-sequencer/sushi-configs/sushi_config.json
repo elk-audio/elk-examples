@@ -26,7 +26,7 @@
                     "type"   : "vst2x"
                 },
                 {
-                    "path" : "/udata/elk-examples/plugins/MVerb-vst.so",
+                    "path" : "/udata/elk-examples/plugins/DPF/MVerb-vst.so",
                     "name" : "reverb",
                     "type" : "vst2x"
                 }
