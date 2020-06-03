@@ -4,15 +4,15 @@
 JUCE_PLUGIN_PATH=/udata/elk-examples/plugins/elk_juce_example.so
 
 if ! test -f "$JUCE_PLUGIN_PATH"; then
-    echo "Error! Elk Juce example plugin is missing. Please download the plugin and place it\
- in /udata/elk-examples/plugins/ . The plugin can be found at\
- https://github.com/elk-audio/elk-examples/releases"
+    echo "Error! Elk Juce example plugin is missing. Please download the plugins for the examples and place them\
+ in /udata/elk-examples/plugins. Documentation and a link for the plugins can be found at: \
+https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples"
     exit 0
 fi
 
 MIDI_KEYBOARD="$(aconnect -l)"
 if ! echo "$MIDI_KEYBOARD" | grep -q "16"; then
-    echo "Error! Midi Keyboard not connected. Please connect a midi keyboard"
+    echo "Error! Midi Keyboard not connected. Please connect one, this example depends on it."
     exit 0
 fi
 

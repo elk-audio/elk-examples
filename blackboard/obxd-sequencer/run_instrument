@@ -2,25 +2,19 @@
 # Start Elk Sequencer example
 
 OBXD_PLUGIN_PATH=/udata/elk-examples/plugins/Obxd.so
-MVERB_PLUGIN_PATH=/udata/elk-examples/plugins/DPF/MVerb-vst.so
+MVERB_PLUGIN_PATH=/udata/elk-examples/plugins/MVerb-vst.so
 
 if ! test -f "$OBXD_PLUGIN_PATH"; then
-    echo "Error! Plugin OB-Xd is missing. Please download the plugin and place it\
- in /udata/elk-examples/plugins/ . The plugin can be found at\
- https://github.com/elk-community/OB-Xd/releases"
+    echo "Error! Plugin OB-Xd is missing. Please download the plugins for the examples and place them\
+ in /udata/elk-examples/plugins. Documentation and a link for the plugins can be found at: \
+https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples"
     exit 0
 fi
 
 if ! test -f "$MVERB_PLUGIN_PATH"; then
-    echo "Error! Plugin Mverb-VST is missing. Please download the plugin and place it\
- in /udata/elk-examples/plugins/DPF. The plugin can be found at\
- https://github.com/elk-community/DPF-Plugins/releases"
-    exit 0
-fi
-
-MIDI_KEYBOARD="$(aconnect -l)"
-if ! echo "$MIDI_KEYBOARD" | grep -q "16"; then
-    echo "Error! Midi Keyboard not connected. Please connect a midi keyboard"
+    echo "Error! Plugin Mverb-VST is missing. Please download the plugins for the examples and place them\
+ in /udata/elk-examples/plugins. Documentation and a link for the plugins can be found at\
+https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples"
     exit 0
 fi
 
@@ -33,4 +27,10 @@ sleep 1
 (cd ./main; ./main_app_without_elk_ui &)
 sleep 3
 aconnect -x
+
+MIDI_KEYBOARD="$(aconnect -l)"
+if ! echo "$MIDI_KEYBOARD" | grep -q "16"; then
+    echo "No MIDI keyboard found connected to the USB ports. Connect one to play synth, or use Blackboard buttons."
+fi
+
 aconnect 16 128
