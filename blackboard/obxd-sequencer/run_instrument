@@ -13,7 +13,7 @@ fi
 
 if ! test -f "$MVERB_PLUGIN_PATH"; then
     echo "Error! Plugin Mverb-VST is missing. Please download the plugins for the examples and place them\
- in /udata/elk-examples/plugins. Documentation and a link for the plugins can be found at\
+ in /udata/elk-examples/plugins. Documentation and a link for the plugins can be found at: \
 https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples"
     exit 0
 fi
