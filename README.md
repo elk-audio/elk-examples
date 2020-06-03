@@ -39,7 +39,7 @@ This example demonstrates using Sushi as a host of multiple effects applied on t
 
 The examples under the `blackboard` folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific to each platform.
 
-These examples are more involved, so ensure you read the [online documentation](elk-pi:/udata/elk-examples/blackboard/controller-examples$ ./run_sequencer_general ) closely to get started.
+These examples are more involved, so ensure you read the [online documentation](https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples) closely to get started.
 
 **Benchmark Synth**
 
