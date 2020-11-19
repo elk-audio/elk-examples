@@ -63,29 +63,32 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    c = sc.SushiController()
-    processor_id = c.audio_graph.get_processor_id(args.processor)
+    try:
+        c = sc.SushiController()
+        processor_id = c.audio_graph.get_processor_id(args.processor)
 
-    alsaseq.client(PROC_NAME, 0, 1, True)
-    alsaseq.connectto(0, get_alsa_port_by_name(args.alsa_port), 0)
-    alsaseq.start()
+        alsaseq.client(PROC_NAME, 0, 1, True)
+        alsaseq.connectto(0, get_alsa_port_by_name(args.alsa_port), 0)
+        alsaseq.start()
 
-    c.timings.set_timings_enabled(True)
-    c.timings.reset_all_timings()
-    time.sleep(0.5)
-    timings_no_load = c.timings.get_processor_timings(processor_id)
-    print("Processor load without Note ONs:  %s avg, %s max" % (timings_no_load[0], timings_no_load[2]))
-
-    while (True):
+        c.timings.set_timings_enabled(True)
         c.timings.reset_all_timings()
-        for note in args.notes:
-            alsaseq.output(noteonevent(0, note, 127))
+        time.sleep(0.5)
+        timings_no_load = c.timings.get_processor_timings(processor_id)
+        print("Processor load without Note ONs:  %s avg, %s max" % (timings_no_load[0], timings_no_load[2]))
 
-        time.sleep(args.duration)
-        timings_end = c.timings.get_processor_timings(processor_id)
-        for note in args.notes:
-            alsaseq.output(noteoffevent(0, note, 127))
+        while (True):
+            c.timings.reset_all_timings()
+            for note in args.notes:
+                alsaseq.output(noteonevent(0, note, 127))
 
-        print("Notes: %s, %s avg, %s max" % (args.notes,
-            timings_end[0], timings_end[2]))
-        time.sleep(0.5 * args.duration)
+            time.sleep(args.duration)
+            timings_end = c.timings.get_processor_timings(processor_id)
+            for note in args.notes:
+                alsaseq.output(noteoffevent(0, note, 127))
+
+            print("Notes: %s, %s avg, %s max" % (args.notes,
+                timings_end[0], timings_end[2]))
+            time.sleep(0.5 * args.duration)
+    except KeyboardInterrupt:
+        c.close()
