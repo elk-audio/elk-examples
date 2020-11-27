@@ -81,7 +81,7 @@ REFRESH_INTERVAL = 0.05
 DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
 RESET_PIN_INDEX = 31
 DISPLAY_RESET_INTERVAL = 0.2
-SEQUNCER_SCALE_STEP_NORMALIZED = 1/24
+SEQUENCER_SCALE_STEP_NORMALIZED = 1/24
 
 #########################
 #  Module functions
@@ -315,7 +315,7 @@ class ElkBridge(object):
 
             if self._state_machine.get_mode() == "sequencer":
                 current_value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value("pitch_" + str(self._active_button))
-                new_value = current_value + direction * SEQUNCER_SCALE_STEP_NORMALIZED
+                new_value = current_value + direction * SEQUENCER_SCALE_STEP_NORMALIZED
                 self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("pitch_" + str(self._active_button), new_value)
             else:
                 self._state_machine.cycle_parameter_page(direction)

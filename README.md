@@ -27,7 +27,7 @@ A demonstration of how to load an lv2 plugin, using the lv2vst wrapper, along wi
 
 **Elk JUCE Example**
 
-The source code and JUCE `.jucer` file, for building our Elk JUCE example vst2 plugin.
+The source code and JUCE **.jucer** file, for building our Elk JUCE example vst2 plugin.
 
 The plugin is accompanied by a python program for integrating it with the Blackboard controls, and with an instance of the plugin running on a desktop computer, synchronizing the two plugin instance's (Elk Pi and desktop) state over OSC.
 
@@ -37,7 +37,7 @@ This example demonstrates using Sushi as a host of multiple effects applied on t
 
 **Blackboard**
 
-The examples under the `blackboard` folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific to each platform.
+The examples under the **blackboard** folder, are specifically made to run on the Elk Pi, using the  Blackboard controller board. They are compatible both with the Raspberry Pi 3 b+ and Pi 4, but you will need to separately download the plugin binaries specific to each platform.
 
 These examples are more involved, so ensure you read the [online documentation](https://elk-audio.github.io/elk-docs/html/documents/elk_examples_overview.html#complete-blackboard-examples) closely to get started.
 
@@ -46,4 +46,3 @@ These examples are more involved, so ensure you read the [online documentation](
 This is a simple tool that uses Sushi's internal timing mechanism and its gRPC API to accurate measure the CPU load of a synthesizer at NoteON events.
 
 See the [README.md in the benchmark-synth subfolder](benchmark-synth/README.md) for more details.
-
