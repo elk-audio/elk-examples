@@ -14,7 +14,7 @@ from elk_ui import ElkUIController
 FADER_PARAMETERS = [ "Cutoff", "Resonance", "Attack", "Release" ]
 
 class ElkBridge(object):
-    """ 
+    """
     Bridge / Glue application to connect board UI (pots, buttons, LEDs, etc.)
     to changes in SUSHI's processors.
     """
@@ -25,10 +25,10 @@ class ElkBridge(object):
                                   None,
                                   None)
 
-        
+
         self.sushi = sc.SushiController()
         self.processor = sp.SushiProcessor("synth", self.sushi)
-        
+
         self._active_param_idx = 0
 
         self._refresh_display()
@@ -38,11 +38,11 @@ class ElkBridge(object):
         """ Minimal event loop
         """
         self.ui.run()
-                
+
         while True:
             time.sleep(0.05)
             self.ui.refresh()
-            
+
 
     def handle_faders(self, idx, val):
         """ Send parameter changes to plugin
@@ -51,7 +51,7 @@ class ElkBridge(object):
         self._active_param_idx = idx
         param = FADER_PARAMETERS[idx]
         self.processor.set_parameter_value(param, val)
-        
+
         self._refresh_display()
 
 
@@ -62,18 +62,17 @@ class ElkBridge(object):
         # C3 + C scale from C4 to C5
         BUTTON_MIDI_NOTES = [ 48, 60, 62, 64, 65, 67, 69, 71, 72 ]
 
-        self.sushi.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
+        self.sushi.keyboard.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
         self.ui.set_led(idx, val)
 
 
     def _refresh_display(self):
         parameter = FADER_PARAMETERS[self._active_param_idx]
         value = self.processor.get_parameter_value(parameter)
-        
+
         self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.3f" % value])
 
 
 if __name__ == '__main__':
-    bridge = ElkBridge()    
+    bridge = ElkBridge()
     bridge.run()
-

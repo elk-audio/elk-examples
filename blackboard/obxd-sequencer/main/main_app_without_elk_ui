@@ -81,6 +81,7 @@ REFRESH_INTERVAL = 0.05
 DISPLAY_CONFIG = ["--display", "ssd1306",  "--i2c-port", "0", "--i2c-address", "0x3C", "--width", "128", "--height", "64"]
 RESET_PIN_INDEX = 31
 DISPLAY_RESET_INTERVAL = 0.2
+SEQUENCER_SCALE_STEP_NORMALIZED = 1/24
 
 #########################
 #  Module functions
@@ -168,6 +169,7 @@ class ElkBridge(object):
         return processors
 
     def register_callbacks(self):
+        # OSC callbacks
         for path, unused in SENSEI_POT_MAP.items():
             self._server.add_method(path, 'f', self._handle_knobs)
 
@@ -177,10 +179,10 @@ class ElkBridge(object):
         for path, unused in (SENSEI_ENCODER_MAP).items():
             self._server.add_method(path, 'f', self._handle_encoder)
 
-        for path, unused in (SUSHI_PLAYHEAD_MAP).items():
-            self._server.add_method(path, 'f', self._handle_playhead)
-
         self._server.add_method(None, None, self._unhandled_msg_callback)
+
+        # gRPC callback
+        self._sushi.notifications.subscribe_to_parameter_updates(self._handle_playhead)
 
     def _unhandled_msg_callback(self, path, args, types, src):
         pass
@@ -191,9 +193,9 @@ class ElkBridge(object):
         self._processors["obxd"].set_parameter_value("VoiceCount", 6/8)
 
         self._processors["obxd"].set_parameter_value("Cutoff", 0.5)
-        
+
         self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
-        self._sushi.set_tempo(200)
+        self._sushi.transport.set_tempo(200)
 
         # Arpeggio
         self._processors["sequencer_obxd"].set_parameter_value("pitch_0",0.4166666666666667)
@@ -210,7 +212,7 @@ class ElkBridge(object):
         set_led_output(12, True)
         set_led_output(13, True)
 
-    
+
     def refresh_knobs(self):
         for parameter in self._processors[self._state_machine.get_active_sequencer()].get_parameters():
             value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value(parameter)
@@ -229,12 +231,12 @@ class ElkBridge(object):
                 value = self._processors[processor].get_programs().index(self._processors[processor].get_program()) % 10
             elif parameter == "bnk":
                 value = int(self._processors[processor].get_programs().index(self._processors[processor].get_program()) / 10)
-            else: 
+            else:
                 value = self._processors[processor].get_parameter_value(parameter)
 
             if self._state_machine.get_parameter(parameter) != value:
                 self._state_machine.set_parameter(parameter, value)
-        
+
         self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
 
     def refresh_leds(self):
@@ -248,7 +250,7 @@ class ElkBridge(object):
     # Callback for knobs
     def _handle_knobs(self, path, args):
         value = args[0]
-        data = (self._state_machine.get_plugin(SENSEI_POT_MAP[path]), 
+        data = (self._state_machine.get_plugin(SENSEI_POT_MAP[path]),
                 self._state_machine.get_page_parameters(SENSEI_POT_MAP[path]),
                 self._state_machine.get_knob_name(SENSEI_POT_MAP[path]))
         knob = SENSEI_POT_MAP[path]
@@ -261,7 +263,7 @@ class ElkBridge(object):
             elif data[1][0]["name"] == "pgm":
                 bnk = int(self._processors[data[0]].get_programs().index(self._processors[data[0]].get_program()) / 10)
                 self._processors[data[0]].set_program(self._processors[data[0]].get_programs()[bnk*10 + int(value*9)])
-            else: 
+            else:
                 self._handle_value_change(data, value)
             self._analog_values[knob] = value
 
@@ -287,21 +289,21 @@ class ElkBridge(object):
                     self._buttons[self._active_button+1] = value
                     self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("step_" + str(self._active_button), float(not value))
             elif SENSEI_BUTTONS_MAP[path] == 9:
-                if self._sushi.get_playing_mode() == 1:
-                    self._sushi.set_playing_mode(2)
+                if self._sushi.transport.get_playing_mode() == 1:
+                    self._sushi.transport.set_playing_mode(2)
                     self._buttons[0] = 1
                 else:
-                    self._sushi.set_playing_mode(1)
+                    self._sushi.transport.set_playing_mode(1)
                     self._buttons[0] = 0
                     for i in range(128):
-                        for track in self._sushi.get_tracks():
-                            self._sushi.send_note_off(track.id,0,i,0)
+                        for track in self._sushi.audio_graph.get_all_tracks():
+                            self._sushi.keyboard.send_note_off(track.id,0,i,0)
             else:
                 target = SENSEI_BUTTONS_MAP[path]
                 self._state_machine.set_mode("sequencer")
                 self._active_button = target
                 self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode(), target)
-                
+
         elif SENSEI_BUTTONS_MAP[path] != 10 and SENSEI_BUTTONS_MAP[path] != 9:
             self._state_machine.set_mode("plugin")
 
@@ -310,18 +312,23 @@ class ElkBridge(object):
         value = args[0]
         if value != self._values["encoder"]:
             direction = int(math.copysign(1, (value-self._values["encoder"])))
-            
+
             if self._state_machine.get_mode() == "sequencer":
                 current_value = self._processors[self._state_machine.get_active_sequencer()].get_parameter_value("pitch_" + str(self._active_button))
-                self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("pitch_" + str(self._active_button), current_value + direction)
+                new_value = current_value + direction * SEQUENCER_SCALE_STEP_NORMALIZED
+                self._processors[self._state_machine.get_active_sequencer()].set_parameter_value("pitch_" + str(self._active_button), new_value)
             else:
                 self._state_machine.cycle_parameter_page(direction)
                 self._display.set_dirty(self._state_machine.get_state_text(), self._state_machine.get_mode())
-            
+
             self._values["encoder"] = value
 
-    def _handle_playhead(self, path, args):
-        set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, args[0])
+    def _handle_playhead(self, notification):
+        proc_name = self._sushi.audio_graph.get_processor_info(notification.parameter.processor_id).name
+        param_name = self._sushi.parameters.get_parameter_info(notification.parameter.processor_id,
+                notification.parameter.parameter_id).name
+        path = "/parameter/" + proc_name + "/" + param_name
+        set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, notification.value)
 
 if __name__ == '__main__':
     state_machine = sm.StateMachine()

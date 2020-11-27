@@ -4,10 +4,7 @@ import time
 import argparse
 
 import alsaseq
-import grpc
-
-import sushi_rpc_pb2_grpc as sushi_grpc
-import sushi_rpc_pb2 as sushi_proto
+from elkpy import sushicontroller as sc
 
 ######################
 #  Module constants  #
@@ -56,20 +53,6 @@ def get_alsa_port_by_name(port_name):
 
     return int(alsa_port_match[0])
 
-class SushiRPChelper(object):
-    def __init__(self, sushi_proc_name, target_grpc_port=DEFAULT_SUSHI_GRPC_PORT):
-        self._channel = grpc.insecure_channel("localhost:%s" % target_grpc_port)
-        self._stub = sushi_grpc.SushiControllerStub(self._channel)
-        self._procid = self._stub.GetProcessorId(sushi_proto.GenericStringValue(value=sushi_proc_name))
-
-    def reset_timings(self):
-        self._stub.ResetProcessorTimings(self._procid)
-
-    def get_timings(self):
-        timings = self._stub.GetProcessorTimings(self._procid)
-        return timings
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(PROC_NAME)
@@ -80,28 +63,32 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    grpc_helper = SushiRPChelper(args.processor)
+    try:
+        c = sc.SushiController()
+        processor_id = c.audio_graph.get_processor_id(args.processor)
 
-    alsaseq.client(PROC_NAME, 0, 1, True)
-    alsaseq.connectto(0, get_alsa_port_by_name(args.alsa_port), 0)
-    alsaseq.start()
+        alsaseq.client(PROC_NAME, 0, 1, True)
+        alsaseq.connectto(0, get_alsa_port_by_name(args.alsa_port), 0)
+        alsaseq.start()
 
-    grpc_helper.reset_timings()
-    time.sleep(0.5)
-    timings_no_load = grpc_helper.get_timings()
-    print("Processor load without Note ONs:  %s avg, %s max" % (timings_no_load.average, timings_no_load.max))
+        c.timings.set_timings_enabled(True)
+        c.timings.reset_all_timings()
+        time.sleep(0.5)
+        timings_no_load = c.timings.get_processor_timings(processor_id)
+        print("Processor load without Note ONs:  %s avg, %s max" % (timings_no_load[0], timings_no_load[2]))
 
-    while (True):
-        grpc_helper.reset_timings()
-        for note in args.notes:
-            alsaseq.output(noteonevent(0, note, 127))
+        while (True):
+            c.timings.reset_all_timings()
+            for note in args.notes:
+                alsaseq.output(noteonevent(0, note, 127))
 
-        time.sleep(args.duration)
-        timings_end = grpc_helper.get_timings()
-        for note in args.notes:
-            alsaseq.output(noteoffevent(0, note, 127))
+            time.sleep(args.duration)
+            timings_end = c.timings.get_processor_timings(processor_id)
+            for note in args.notes:
+                alsaseq.output(noteoffevent(0, note, 127))
 
-        print("Notes: %s, %s avg, %s max" % (args.notes,
-            timings_end.average, timings_end.max))
-        time.sleep(0.5 * args.duration)
-
+            print("Notes: %s, %s avg, %s max" % (args.notes,
+                timings_end[0], timings_end[2]))
+            time.sleep(0.5 * args.duration)
+    except KeyboardInterrupt:
+        c.close()

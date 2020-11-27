@@ -14,7 +14,7 @@ from elk_ui import ElkUIController
 
 
 class ElkBridge(object):
-    """ 
+    """
     Bridge / Glue application to connect board UI (pots, buttons, LEDs, etc.)
     to changes in SUSHI's processors.
     """
@@ -29,10 +29,10 @@ class ElkBridge(object):
         # Caches a list of
         # (proc_info, (param_info_0, ..., param_info_n) )
         self._procs = []
-        for t in self._sushi.get_tracks():
-            for proc in self._sushi.get_track_processors(t.id):
-                self._procs.append( (proc, self._sushi.get_processor_parameters(proc.id)) )
-            self._procs.append( (t, self._sushi.get_processor_parameters(t.id)) )
+        for t in self._sushi.audio_graph.get_all_tracks():
+            for proc in self._sushi.audio_graph.get_track_processors(t.id):
+                self._procs.append( (proc, self._sushi.parameters.get_processor_parameters(proc.id)) )
+            self._procs.append( (t, self._sushi.parameters.get_processor_parameters(t.id)) )
         self._active_proc_idx = 0
         self._active_param_page = 0
         self._refresh_display()
@@ -54,7 +54,7 @@ class ElkBridge(object):
         proc_id = self._procs[self._active_proc_idx][0].id
         param_idx = int(self._active_param_page * N_FADERS + idx)
         param_id = self._procs[self._active_proc_idx][1][param_idx].id
-        self._sushi.set_parameter_value(proc_id, param_id, val)
+        self._sushi.parameters.set_parameter_value(proc_id, param_id, val)
         self._refresh_display()
 
 
@@ -67,7 +67,7 @@ class ElkBridge(object):
 
         # play power chord
         for offset in [0, 7, 12]:
-            self._sushi.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx] + offset, val)
+            self._sushi.keyboard.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx] + offset, val)
             self._ui.set_led(idx, val)
 
 
@@ -103,19 +103,19 @@ class ElkBridge(object):
         param_names = [""] * N_FADERS
         param_vals = [0.0] * N_FADERS
         first_param_idx = int(self._active_param_page * N_FADERS)
-        
+
         params_in_page = self._procs[self._active_proc_idx][1][first_param_idx:first_param_idx+N_FADERS]
-        
+
         for n, param in enumerate(params_in_page):
             param_names[n] = param.name[:10]
-            param_vals[n] = self._sushi.get_parameter_value(proc_info.id, param.id)
-        
+            param_vals[n] = self._sushi.parameters.get_parameter_value(proc_info.id, param.id)
+
         param_line1 = "{0:^10} {1:^10}".format(*param_names)
         value_line1 = "{0:^10.2f} {1:^10.2f}".format(*param_vals)
-        
+
         param_line2 = "{2:^10} {3:^10}".format(*param_names)
         value_line2 = "{2:^10.2f} {3:^10.2f}".format(*param_vals)
-        
+
         self._ui.set_display_lines([header_line, param_line1, value_line1, param_line2, value_line2])
 
 
@@ -127,4 +127,3 @@ class ElkBridge(object):
 if __name__ == '__main__':
     bridge = ElkBridge()
     bridge.run()
-

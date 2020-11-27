@@ -33,7 +33,7 @@ GUI_PATHS = {
 }
 
 class ElkBridge(object):
-    """ 
+    """
     Bridge / Glue application to connect board UI (pots, buttons, LEDs, etc.)
     to changes in SUSHI's processors.
     """
@@ -45,7 +45,7 @@ class ElkBridge(object):
                                    None)
         self.sushi = sc.SushiController()
         self.processor = sp.SushiProcessor(PROCESSOR_NAME, self.sushi)
-        
+
     def run(self):
         """ Minimal event loop
         """
@@ -71,7 +71,7 @@ class ElkBridge(object):
                 self.draw(parameter, value)
 
     def draw(self, parameter, value):
-        self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.2f" % value])  
+        self.ui.set_display_lines(["Param: %s" % parameter, "Value: %.2f" % value])
 
     # Callback for faders
     def handle_faders(self, idx, val):
@@ -91,7 +91,7 @@ class ElkBridge(object):
         # C3 + C scale from C4 to C5
         BUTTON_MIDI_NOTES = [ 48, 60, 62, 64, 65, 67, 69, 71, 72 ]
 
-        self.sushi.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
+        self.sushi.keyboard.send_note_on(0, 0, BUTTON_MIDI_NOTES[idx], val)
         self.ui.set_led(idx, val)
 
 if __name__ == '__main__':
