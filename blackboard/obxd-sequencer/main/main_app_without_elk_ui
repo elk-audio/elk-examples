@@ -324,9 +324,11 @@ class ElkBridge(object):
             self._values["encoder"] = value
 
     def _handle_playhead(self, notification):
-        print("received notification")
-        # print(f"param id: {notification.parameter.parameter_id}, proc id: {notification.parameter.processor_id}, val: {notification.value}")
-        # set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, args[0])
+        proc_name = self._sushi.audio_graph.get_processor_info(notification.parameter.processor_id).name
+        param_name = self._sushi.parameters.get_parameter_info(notification.parameter.processor_id,
+                notification.parameter.parameter_id).name
+        path = "/parameter/" + proc_name + "/" + param_name
+        set_led_output(SUSHI_PLAYHEAD_MAP[path]+1, notification.value)
 
 if __name__ == '__main__':
     state_machine = sm.StateMachine()
