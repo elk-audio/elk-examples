@@ -15,9 +15,10 @@
             ],
             "plugins" : [
                 {
-                    "path" : "/udata/elk-examples/plugins/elk_juce_example.so",
-                    "name" : "elk_juce_example",
-                    "type" : "vst2x"
+                    "uid"  : "ElkJuceExample",
+                    "path" : "/udata/ElkJuceExample.vst3",
+                    "name" : "ElkJuceExample",
+                    "type" : "vst3x"
                 }
             ]
         }

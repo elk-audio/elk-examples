@@ -1,11 +1,17 @@
+###########################################################################################
 # Elk Notes:
+#
 # This file was closely based on JUCE's own JUCE/examples/CMake/AudioPlugin example.
-# We have chosen to make ony a minimal set of changes, limited to only those absolutely
+# We have chosen to make minimal changes to it, limited to only those absolutely
 # necessary for our example plugin to build.
-# For the example to build, a clone of the JUCE repository is needed under the folder:
+# A clone of the JUCE repository is needed under the folder:
 # elk-examples/elk-juce-example-source/JUCE
 # We have already added it as a submodule to the main elk-examples repository.
-# Just run git submodules update --init --recursive
+# Just run git submodule update --init --recursive
+###########################################################################################
+
+# Note that to cross-compile the plugin for the RPi4, you need to follow the instructions at:
+# https://elk-audio.github.io/elk-docs/html/documents/building_plugins_for_elk.html#plugins-using-juce-version-6
 
 # To get started on a new plugin, copy this entire folder (containing this file and C++ sources) to
 # a convenient location, and then start making modifications.
@@ -66,7 +72,7 @@ juce_add_plugin(ElkJuceExample
 # include all your JUCE module headers; if you're happy to include module headers directly, you
 # probably don't need to call this.
 
-juce_generate_juce_header(ElkJuceExample)
+# juce_generate_juce_header(ElkJuceExample)
 
 # `target_sources` adds source files to a target. We pass the target that needs the sources as the
 # first argument, then a visibility parameter for the sources which should normally be PRIVATE.
