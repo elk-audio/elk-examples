@@ -129,6 +129,11 @@ public:
         resonanceParam->setValueNotifyingHost (stream.readFloat());
     }
 
+    bool supportsDoublePrecisionProcessing() const override
+    {
+        return false;
+    }
+
 private:
     void loadNewSample (InputStream* soundBuffer, const char* format)
     {
@@ -155,7 +160,7 @@ private:
     double lastSampleRate;
 
     juce::Reverb reverb;
-	juce::Synthesiser synth;
+    juce::Synthesiser synth;
 
     SynthesiserSound::Ptr sound;
 
