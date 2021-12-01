@@ -2,6 +2,10 @@
 # This file was closely based on JUCE's own JUCE/examples/CMake/AudioPlugin example.
 # We have chosen to make ony a minimal set of changes, limited to only those absolutely
 # necessary for our example plugin to build.
+# For the example to build, a clone of the JUCE repository is needed under the folder:
+# elk-examples/elk-juce-example-source/JUCE
+# We have already added it as a submodule to the main elk-examples repository.
+# Just run git submodules update --init --recursive
 
 # To get started on a new plugin, copy this entire folder (containing this file and C++ sources) to
 # a convenient location, and then start making modifications.

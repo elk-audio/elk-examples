@@ -27,9 +27,11 @@ A demonstration of how to load an lv2 plugin, using the lv2vst wrapper, along wi
 
 **Elk JUCE Example**
 
-The source code and JUCE **.jucer** file, for building our Elk JUCE example vst2 plugin.
+The source code and CMake / **.jucer** file, for building our Elk JUCE example VST 3 plugin.
 
-The plugin is accompanied by a python program for integrating it with the Blackboard controls, and with an instance of the plugin running on a desktop computer, synchronizing the two plugin instance's (Elk Pi and desktop) state over OSC.
+You can build it either with [JUCE 6's new CMake support, or Projucer](https://elk-audio.github.io/elk-docs/html/documents/building_plugins_for_elk.html).
+
+The plugin is accompanied by a python program for integrating it with the Blackboard controls, and with an instance of the plugin running on a desktop computer, synchronising the two plugin instance's (Elk Pi and desktop) state over OSC.
 
 **Multi-FX**
 

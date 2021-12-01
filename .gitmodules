@@ -1,0 +1,3 @@
+[submodule "elk-juce-example-source/JUCE"]
+	path = elk-juce-example-source/JUCE
+	url = https://github.com/juce-framework/JUCE.git
