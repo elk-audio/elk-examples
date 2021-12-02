@@ -1,7 +1,7 @@
 #!/bin/bash
 # Start Elk JUCE example
 
-JUCE_PLUGIN_PATH=/udata/ElkJuceExample.vst3/Contents/aarch64-linux/ElkJuceExample.so
+JUCE_PLUGIN_PATH=/udata/elk-examples/plugins/elk_juce_example.vst3/Contents/aarch64-linux/elk_juce_example.so
 
 if ! test -f "$JUCE_PLUGIN_PATH"; then
     echo "Error! Elk Juce example plugin is missing. Please download the plugins for the examples and place them\

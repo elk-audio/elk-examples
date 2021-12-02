@@ -15,9 +15,9 @@
             ],
             "plugins" : [
                 {
-                    "uid"  : "ElkJuceExample",
-                    "path" : "/udata/ElkJuceExample.vst3",
-                    "name" : "ElkJuceExample",
+                    "uid"  : "elk_juce_example",
+                    "path" : "/udata/elk-examples/plugins/elk_juce_example.vst3",
+                    "name" : "elk_juce_example",
                     "type" : "vst3x"
                 }
             ]
